@@ -1,0 +1,131 @@
+--- Symbol List (sorted by symbol)
+0.Collision              f210              (R )
+0.DrawIcicle             f13e              (R )
+0.DrawSnowman            f11f              (R )
+0.FREE_BYTES             0000                  
+0.InsideIcicle           f134                  
+0.InsideSnowman          f115                  
+0.MainLineLoop           f115              (R )
+0.ResetIciclePos         f204              (R )
+0.ScoreDigitLoop         f0c6              (R )
+1.CLEAR_STACK            f006              (R )
+2.Div15Loop              f21b              (R )
+AUDC0                    0015                  
+AUDC1                    0016                  
+AUDF0                    0017                  
+AUDF1                    0018                  
+AUDV0                    0019                  
+AUDV1                    001a                  
+CalculateDigitOffset     f24d              (R )
+CheckCollision           f207                  
+CheckLeft                f1ba                  
+CheckRight               f1d7              (R )
+COLUBK                   0009              (R )
+COLUP0                   0006              (R )
+COLUP1                   0007              (R )
+COLUPF                   0008              (R )
+CTRLPF                   000a              (R )
+CXBLPF                   0006                  
+CXCLR                    002c              (R )
+CXM0FB                   0004                  
+CXM0P                    0000                  
+CXM1FB                   0005                  
+CXM1P                    0001                  
+CXP0FB                   0002                  
+CXP1FB                   0003                  
+CXPPMM                   0007              (R )
+Digits                   f26e              (R )
+DIGITS_H                 0005              (R )
+ENABL                    001f                  
+ENAM0                    001d                  
+ENAM1                    001e                  
+EndCollisionCheck        f213              (R )
+EndIciclePosUpdate       f207              (R )
+EndJoystickTest          f1f4              (R )
+GameOver                 f269              (R )
+GetRandomIciclePos       f22c              (R )
+GRP0                     001b              (R )
+GRP1                     001c              (R )
+HMBL                     0024                  
+HMCLR                    002b                  
+HMM0                     0022                  
+HMM1                     0023                  
+HMOVE                    002a              (R )
+HMP0                     0020              (R )
+HMP1                     0021                  
+Icicle                   f304              (R )
+ICICLE_H                 000a              (R )
+IcicleColor              f2dc              (R )
+IcicleColPtr             0092              (R )
+IciclePtr                0094              (R )
+IcicleX                  0082              (R )
+IcicleY                  0083              (R )
+INPT0                    0008                  
+INPT1                    0009                  
+INPT2                    000a                  
+INPT3                    000b                  
+INPT4                    000c                  
+INPT5                    000d                  
+INTIM                    0284                  
+NUSIZ0                   0004              (R )
+NUSIZ1                   0005                  
+OnesDigit                008a              (R )
+PF0                      000d              (R )
+PF1                      000e              (R )
+PF2                      000f              (R )
+Random                   0086              (R )
+REFP0                    000b                  
+REFP1                    000c                  
+RESBL                    0014                  
+Reset                    f000              (R )
+RESM0                    0012                  
+RESM1                    0013                  
+RESMP0                   0028                  
+RESMP1                   0029                  
+RESP0                    0010              (R )
+RESP1                    0011                  
+RSYNC                    0003                  
+Score                    0087              (R )
+SetObjectX               f218              (R )
+Sleep12Cycles            f268              (R )
+Snowman                  f2e6              (R )
+SNOWMAN_H                000a              (R )
+SNOWMAN_H_X2             0014              (R )
+SnowmanColor             f2be              (R )
+SnowmanColor3            f2d2                  
+SnowmanColorLeft         f2c8                  
+SnowmanColPtr            008e              (R )
+SnowmanLeft              f2f0                  
+SnowmanOffsetL           0084              (R )
+SnowmanOffsetR           0085              (R )
+SnowmanPtr               0090              (R )
+SnowmanRight             f2fa                  
+SnowmanX                 0080              (R )
+SnowmanY                 0081              (R )
+StartFrame               f043              (R )
+SWACNT                   0281                  
+SWBCNT                   0283                  
+SWCHA                    0280              (R )
+SWCHB                    0282                  
+T1024T                   0297                  
+Temp                     0088              (R )
+TensDigit                008c              (R )
+TIA_BASE_ADDRESS         0000              (R )
+TIA_BASE_READ_ADDRESS    0000              (R )
+TIA_BASE_WRITE_ADDRESS   0000              (R )
+TIM1T                    0294                  
+TIM64T                   0296                  
+TIM8T                    0295                  
+TimerSprite              0089              (R )
+TIMINT                   0285                  
+UpdateIciclePos          f1f4                  
+VBLANK                   0001              (R )
+VDELBL                   0027                  
+VDELP0                   0025                  
+VDELP1                   0026                  
+VERSION_MACRO            006a                  
+VERSION_VCS              0069                  
+VisibleLines             f0ff                  
+VSYNC                    0000              (R )
+WSYNC                    0002              (R )
+--- End of Symbol List.

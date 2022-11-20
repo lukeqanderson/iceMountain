@@ -225,6 +225,8 @@ VisibleLines:
 	clc			; clear carry flag
 	adc SnowmanOffsetR	; go to right sprite frame in memory
 	tay			; load Y 
+	lda #%00000101
+	sta NUSIZ0
 	lda (SnowmanPtr),Y  	; load snowman from lookup table
 	sta WSYNC		; wait for scan line
 	sta GRP0		; set graphics for player 0 (snowman)
@@ -297,7 +299,7 @@ CheckLeft:
 	REPEAT 2
 		lda SnowmanX		 
 		clc			; clears carry
-		cmp #32			; compares Snowman X with value 31 
+		cmp #31			; compares Snowman X with value 31 
 		bmi CheckRight		; goes to check right if less that 31
 		dec SnowmanX		; moves snowman left two pixels per frame
 	REPEND
@@ -311,7 +313,7 @@ CheckRight:
 	REPEAT 2
 		lda SnowmanX		 
 		clc			; clears carry
-		cmp #103		; compares Snowman X with value 94 
+		cmp #94		; compares Snowman X with value 94 
 		bpl EndJoystickTest		; goes to ends test if value > 94  
 		inc SnowmanX		; moves snowman right two pixels per frame
 	REPEND
