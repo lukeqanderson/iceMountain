@@ -965,7 +965,7 @@
     423  f260		       4a		      lsr
     424  f261		       4a		      lsr		; divides value by 4
     425  f262		       85 82		      sta	IcicleX	; stores value in IcicleX
-    426  f264		       a9 1e		      lda	#30
+    426  f264		       a9 25		      lda	#37
     427  f266		       18		      clc		; clears the carry
     428  f267		       65 82		      adc	IcicleX
     429  f269		       85 82		      sta	IcicleX	; IcicleX += 30

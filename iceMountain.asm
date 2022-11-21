@@ -423,7 +423,7 @@ GetRandomIciclePos subroutine
 	lsr
 	lsr 		; divides value by 4 
 	sta IcicleX	; stores value in IcicleX
-	lda #30
+	lda #37
 	clc		; clears the carry
 	adc IcicleX	 
 	sta IcicleX	; IcicleX += 30 
