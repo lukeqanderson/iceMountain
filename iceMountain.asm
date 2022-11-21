@@ -20,10 +20,13 @@ IcicleX		byte		; Player 1 (icicle) X axis position
 IcicleY		byte		; Player 1 (icicle) Y axis position
 SnowmanOffsetL	byte		; Player 0 (snowman) offset for left sprite
 SnowmanOffsetR	byte		; Player 0 (snowman) offset for right sprite
+SnowmanOffsetD	byte		; Player 0 (snowman) offset for dead sprite
 Random		byte		; random number for setting player 1 X pos
 Score 		byte		; stores the value for the score
+HiScore		byte		; stores the value for the hi score
 Temp		byte		; variable to store temporary time values
 TimerSprite	byte		; stores the current time sprite
+HiScoreSprite	byte		; stores the value for the hi score
 OnesDigit	word		; stores offset of ones digit
 TensDigit	word		; stores offset of tens digit
 SnowmanColPtr	word		; Player 0 (nowman) color pointer
@@ -31,13 +34,13 @@ SnowmanPtr	word		; Player 0 (snowman) pointer
 IcicleColPtr	word		; player 1 (icicle) color pointer
 IciclePtr	word		; Player 1 (icicle) pointer 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Define Constants
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 SNOWMAN_H = 10 			; Height for snowman sprite
 SNOWMAN_H_X2 = 20		; Height for two snowmen for right animation
+SNOWMAN_H_X3 = 30		; Height for three snowmen for dead animation
 ICICLE_H = 10			; Height for icicle sprite
 DIGITS_H = 5			; Height for timer
 
@@ -70,8 +73,9 @@ Reset:
 	lda #%11010100
 	sta Random		; Sets Random seed 
 
-	lda #4
+	lda #0
 	sta Score
+	sta HiScore
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -159,31 +163,49 @@ StartFrame:
 	ldx #DIGITS_H		; X = Digits height
 	 
 .ScoreDigitLoop:
-    	sta WSYNC               ; wait for the end of scanline
-    	ldy TensDigit 		; get the left digit offset for the Timer
-    	lda Digits,Y            ; load the digit pattern from lookup table
- 	and #%11110000          ; mask the graphics for the ones digit
-    	sta TimerSprite         ; save the timer tens digit pattern in a variable
+    ldy TensDigit		; get the tens digit offset for the Timer 
+    lda Digits,Y             ; load the bit pattern from lookup table
+    and #$F0                 ; mask/remove the graphics for the ones digit
+    sta TimerSprite          ; save the score tens digit pattern in a variable
 
-    	ldy OnesDigit		; get the ones digit offset for the Timer
-    	lda Digits,Y            ; load digit pattern from the lookup table
-    	and #%00001111          ; mask the graphics for the tens digit
-   	ora TimerSprite         ; merge with the saved tens digit graphics
-    	sta TimerSprite         ; and save it
+    ldy OnesDigit		; get the ones digit offset for the Timer 
+    lda Digits,Y             ; load the digit bit pattern from lookup table
+    and #$0F                 ; mask/remove the graphics for the tens digit
+    ora TimerSprite          ; merge it with the saved tens digit sprite
+    sta TimerSprite          ; and save it
+    sta WSYNC                ; wait for the end of scanline
+    sta PF1                  ; update the playfield to display the Score sprite
 
-    	jsr Sleep12Cycles       ; wastes some cycles
+    ldy TensDigit+1    ; get the left digit offset for the Hi Score
+    lda Digits,Y             ; load the digit pattern from lookup table
+    and #$F0                 ; mask/remove the graphics for the ones digit
+    sta HiScoreSprite          ; save the timer tens digit pattern in a variable
 
-    	sta PF1                  ; update the playfield for Timer display
+    ldy OnesDigit+1    ; get the ones digit offset for the Hi Score
+    lda Digits,Y             ; load digit pattern from the lookup table
+    and #$0F                 ; mask/remove the graphics for the tens digit
+    ora HiScoreSprite          ; merge with the saved tens digit graphics
+    sta HiScoreSprite          ; and save it
 
-    	sta WSYNC                ; wait for next scanline
-    	inc TensDigit
-    	inc OnesDigit    ; increment all digits for the next line of data
+    jsr Sleep12Cycles        ; wastes some cycles
 
-    	jsr Sleep12Cycles        ; waste some cycles
+    sta PF1                  ; update the playfield for Hi Score display
 
-    	dex                      ; X--
-    	sta PF1                  ; update the playfield for the Timer display
-    	bne .ScoreDigitLoop      ; if dex != 0, then branch to ScoreDigitLoop
+    ldy TimerSprite          ; preload for the next scanline
+    sta WSYNC                ; wait for next scanline
+
+    sty PF1                  ; update playfield for the score display
+    inc TensDigit
+    inc TensDigit+1
+    inc OnesDigit
+    inc OnesDigit+1    ; increment all digits for the next line of data
+
+    jsr Sleep12Cycles        ; waste some cycles
+
+    dex                      ; X--
+    sta PF1                  ; update the playfield for the Score display
+    bne .ScoreDigitLoop      ; if dex != 0, then branch to ScoreDigitLoop
+
 	
     	sta WSYNC
 
@@ -224,6 +246,8 @@ VisibleLines:
 	adc SnowmanOffsetL	; go to left sprite frame in memory
 	clc			; clear carry flag
 	adc SnowmanOffsetR	; go to right sprite frame in memory
+	clc			; clear carry flag
+	adc SnowmanOffsetD	; go to dead sprite frame in memory
 	tay			; load Y 
 	lda #%00000101
 	sta NUSIZ0
@@ -254,7 +278,8 @@ VisibleLines:
 	
 	lda #0
 	sta SnowmanOffsetL
-	sta SnowmanOffsetR	; reset left and right offsets
+	sta SnowmanOffsetR
+	sta SnowmanOffsetD	; reset all offsets each frame	
 
 
 	lda #$0c
@@ -412,15 +437,17 @@ GetRandomIciclePos subroutine
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 CalculateDigitOffset subroutine
-	lda Score
+	ldx #1		
+.PrepareScoreLoop
+	lda Score,X
 	and #%00001111	; masks first 4 bits
 	sta Temp	; save A in Temp 
 	asl
 	asl		; shift left twice for n * 4
 	adc Temp	; adds original A for n * 5
-	sta OnesDigit	; stores ones digit
+	sta OnesDigit,X	; stores ones digit
 
-	lda Score
+	lda Score,X
 	and #%11110000	; masks last 4 bits
 	lsr
 	lsr		; shift right twice for n / 4
@@ -428,7 +455,10 @@ CalculateDigitOffset subroutine
 	lsr
 	lsr		; shift right twice for n / 16
 	adc Temp	; adds value stored in temp for n / 16 + n / 4 
-	sta TensDigit	; stores tens digit
+	sta TensDigit,X	; stores tens digit
+	dex		; X--
+	bpl .PrepareScoreLoop	; while X >= 0
+
 	rts		; return
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -438,13 +468,46 @@ Sleep12Cycles subroutine
     rts
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Subroutine for collision sound
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+GenerateDeadSound subroutine
+	REPEAT 5
+	lda #10
+	sta AUDV0	; sets volume
+	lda #31		
+	sta AUDF0	; sets frequency
+	lda #8
+	sta AUDC0	; sets sound type
+	REPEND
+	lda #0
+	sta AUDV0
+	sta AUDF0
+	sta AUDC0	; resets sound
+	rts		; return 	
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Subroutine when game is over (collision occured)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 GameOver subroutine
-	
 	lda #0
-	sta Score		; score gets reset 
+	sta SnowmanOffsetL
+	sta SnowmanOffsetR	; clears left and right snowman offset to prevent animation
+	lda SNOWMAN_H_X3			
+	sta SnowmanOffsetD	; adds height x 3 to go to dead sprite frame
+	jsr GenerateDeadSound	; adds dead sound
+	lda Score
+	cmp HiScore
+	bpl .SetHighScore	; sets high score if score is greater than highscore
+	jmp ResetScore		; goes to reset score if hi score already set or greater
+
+.SetHighScore
+	lda Score
+	sta HiScore		; stores the score in hi score
+	
+ResetScore:
+	lda #0
+	sta Score	; score gets reset 
 	rts		; return 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -573,7 +636,7 @@ SnowmanColorLeft		; color for snowman when moving left
 	.byte #$0e
 	.byte #$0e
 
-SnowmanColor3			; color for snowman when moving right
+SnowmanColorRight		;color for snowman when moving right
 	.byte #$00
 	.byte #$0e
 	.byte #$0e
@@ -584,6 +647,18 @@ SnowmanColor3			; color for snowman when moving right
 	.byte #$0e
 	.byte #$0e
 	.byte #$0e
+
+SnowmanColorDead		;color for snowman when dead
+	.byte #$00
+	.byte #$0e
+	.byte #$0e
+	.byte #$0e
+	.byte #$0e
+	.byte #$0e
+	.byte #$0e
+	.byte #$9c
+	.byte #$9c
+	.byte #$9c
 
 IcicleColor			; color for icicle
 	.byte #%00
@@ -631,6 +706,18 @@ SnowmanRight
         .byte #%00111101
         .byte #%00111100
         .byte #%00110100
+        .byte #%00111100
+
+SnowmanDead
+        .byte #%00000000
+        .byte #%11111111
+        .byte #%11111111
+        .byte #%11111111
+        .byte #%01111111
+        .byte #%01111110
+        .byte #%01111110
+        .byte #%00011100
+        .byte #%00011100
         .byte #%00111100
 
 Icicle				; outline of icicle 

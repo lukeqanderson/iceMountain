@@ -1,25 +1,27 @@
 --- Symbol List (sorted by symbol)
-0.Collision              f210              (R )
-0.DrawIcicle             f13e              (R )
-0.DrawSnowman            f11f              (R )
+0.Collision              f235              (R )
+0.DrawIcicle             f161              (R )
+0.DrawSnowman            f13f              (R )
 0.FREE_BYTES             0000                  
-0.InsideIcicle           f134                  
-0.InsideSnowman          f115                  
-0.MainLineLoop           f115              (R )
-0.ResetIciclePos         f204              (R )
-0.ScoreDigitLoop         f0c6              (R )
+0.InsideIcicle           f157                  
+0.InsideSnowman          f135                  
+0.MainLineLoop           f135              (R )
+0.ResetIciclePos         f229              (R )
+0.ScoreDigitLoop         f0c8              (R )
 1.CLEAR_STACK            f006              (R )
-2.Div15Loop              f21b              (R )
-AUDC0                    0015                  
+2.Div15Loop              f240              (R )
+4.PrepareScoreLoop       f274              (R )
+7.SetHighScore           f2ee              (R )
+AUDC0                    0015              (R )
 AUDC1                    0016                  
-AUDF0                    0017                  
+AUDF0                    0017              (R )
 AUDF1                    0018                  
-AUDV0                    0019                  
+AUDV0                    0019              (R )
 AUDV1                    001a                  
-CalculateDigitOffset     f24d              (R )
-CheckCollision           f207                  
-CheckLeft                f1ba                  
-CheckRight               f1d7              (R )
+CalculateDigitOffset     f272              (R )
+CheckCollision           f22c                  
+CheckLeft                f1df                  
+CheckRight               f1fc              (R )
 COLUBK                   0009              (R )
 COLUP0                   0006              (R )
 COLUP1                   0007              (R )
@@ -34,18 +36,21 @@ CXM1P                    0001
 CXP0FB                   0002                  
 CXP1FB                   0003                  
 CXPPMM                   0007              (R )
-Digits                   f26e              (R )
+Digits                   f2f7              (R )
 DIGITS_H                 0005              (R )
 ENABL                    001f                  
 ENAM0                    001d                  
 ENAM1                    001e                  
-EndCollisionCheck        f213              (R )
-EndIciclePosUpdate       f207              (R )
-EndJoystickTest          f1f4              (R )
-GameOver                 f269              (R )
-GetRandomIciclePos       f22c              (R )
+EndCollisionCheck        f238              (R )
+EndIciclePosUpdate       f22c              (R )
+EndJoystickTest          f219              (R )
+GameOver                 f2d8              (R )
+GenerateDeadSound        f293              (R )
+GetRandomIciclePos       f251              (R )
 GRP0                     001b              (R )
 GRP1                     001c              (R )
+HiScore                  0089              (R )
+HiScoreSprite            008c              (R )
 HMBL                     0024                  
 HMCLR                    002b                  
 HMM0                     0022                  
@@ -53,11 +58,11 @@ HMM1                     0023
 HMOVE                    002a              (R )
 HMP0                     0020              (R )
 HMP1                     0021                  
-Icicle                   f304              (R )
+Icicle                   f3a1              (R )
 ICICLE_H                 000a              (R )
-IcicleColor              f2dc              (R )
-IcicleColPtr             0092              (R )
-IciclePtr                0094              (R )
+IcicleColor              f36f              (R )
+IcicleColPtr             0095              (R )
+IciclePtr                0097              (R )
 IcicleX                  0082              (R )
 IcicleY                  0083              (R )
 INPT0                    0008                  
@@ -69,15 +74,16 @@ INPT5                    000d
 INTIM                    0284                  
 NUSIZ0                   0004              (R )
 NUSIZ1                   0005                  
-OnesDigit                008a              (R )
+OnesDigit                008d              (R )
 PF0                      000d              (R )
 PF1                      000e              (R )
 PF2                      000f              (R )
-Random                   0086              (R )
+Random                   0087              (R )
 REFP0                    000b                  
 REFP1                    000c                  
 RESBL                    0014                  
 Reset                    f000              (R )
+ResetScore               f2f2              (R )
 RESM0                    0012                  
 RESM1                    0013                  
 RESMP0                   0028                  
@@ -85,47 +91,51 @@ RESMP1                   0029
 RESP0                    0010              (R )
 RESP1                    0011                  
 RSYNC                    0003                  
-Score                    0087              (R )
-SetObjectX               f218              (R )
-Sleep12Cycles            f268              (R )
-Snowman                  f2e6              (R )
+Score                    0088              (R )
+SetObjectX               f23d              (R )
+Sleep12Cycles            f292              (R )
+Snowman                  f379              (R )
 SNOWMAN_H                000a              (R )
 SNOWMAN_H_X2             0014              (R )
-SnowmanColor             f2be              (R )
-SnowmanColor3            f2d2                  
-SnowmanColorLeft         f2c8                  
-SnowmanColPtr            008e              (R )
-SnowmanLeft              f2f0                  
+SNOWMAN_H_X3             001e              (R )
+SnowmanColor             f347              (R )
+SnowmanColorDead         f365                  
+SnowmanColorLeft         f351                  
+SnowmanColorRight        f35b                  
+SnowmanColPtr            0091              (R )
+SnowmanDead              f397                  
+SnowmanLeft              f383                  
+SnowmanOffsetD           0086              (R )
 SnowmanOffsetL           0084              (R )
 SnowmanOffsetR           0085              (R )
-SnowmanPtr               0090              (R )
-SnowmanRight             f2fa                  
+SnowmanPtr               0093              (R )
+SnowmanRight             f38d                  
 SnowmanX                 0080              (R )
 SnowmanY                 0081              (R )
-StartFrame               f043              (R )
+StartFrame               f045              (R )
 SWACNT                   0281                  
 SWBCNT                   0283                  
 SWCHA                    0280              (R )
 SWCHB                    0282                  
 T1024T                   0297                  
-Temp                     0088              (R )
-TensDigit                008c              (R )
+Temp                     008a              (R )
+TensDigit                008f              (R )
 TIA_BASE_ADDRESS         0000              (R )
 TIA_BASE_READ_ADDRESS    0000              (R )
 TIA_BASE_WRITE_ADDRESS   0000              (R )
 TIM1T                    0294                  
 TIM64T                   0296                  
 TIM8T                    0295                  
-TimerSprite              0089              (R )
+TimerSprite              008b              (R )
 TIMINT                   0285                  
-UpdateIciclePos          f1f4                  
+UpdateIciclePos          f219                  
 VBLANK                   0001              (R )
 VDELBL                   0027                  
 VDELP0                   0025                  
 VDELP1                   0026                  
 VERSION_MACRO            006a                  
 VERSION_VCS              0069                  
-VisibleLines             f0ff                  
+VisibleLines             f11f                  
 VSYNC                    0000              (R )
 WSYNC                    0002              (R )
 --- End of Symbol List.

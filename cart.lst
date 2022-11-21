@@ -379,7 +379,7 @@
      11  0000 ????						;; Declare the variables from address $80
      12  0000 ????						;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
      13  0000 ????
-     14 U0096 ????				      seg.u	Variables
+     14 U0099 ????				      seg.u	Variables
      15 U0080					      org	$80
      16 U0080
      17 U0080		       00	   SnowmanX   byte.b		; Player 0 (snowman) X axis position
@@ -388,35 +388,38 @@
      20 U0083		       00	   IcicleY    byte.b		; Player 1 (icicle) Y axis position
      21 U0084		       00	   SnowmanOffsetL byte.b		; Player 0 (snowman) offset for left sprite
      22 U0085		       00	   SnowmanOffsetR byte.b		; Player 0 (snowman) offset for right sprite
-     23 U0086		       00	   Random     byte.b		; random number for setting player 1 X pos
-     24 U0087		       00	   Score      byte.b		; stores the value for the score
-     25 U0088		       00	   Temp       byte.b		; variable to store temporary time values
-     26 U0089		       00	   TimerSprite byte.b		; stores the current time sprite
-     27 U008a		       00 00	   OnesDigit  word.w		; stores offset of ones digit
-     28 U008c		       00 00	   TensDigit  word.w		; stores offset of tens digit
-     29 U008e		       00 00	   SnowmanColPtr word.w		; Player 0 (nowman) color pointer
-     30 U0090		       00 00	   SnowmanPtr word.w		; Player 0 (snowman) pointer
-     31 U0092		       00 00	   IcicleColPtr word.w		; player 1 (icicle) color pointer
-     32 U0094		       00 00	   IciclePtr  word.w		; Player 1 (icicle) pointer
-     33 U0096
-     34 U0096
-     35 U0096							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     36 U0096							;; Define Constants
-     37 U0096							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     38 U0096
-     39 U0096		       00 0a	   SNOWMAN_H  =	10	; Height for snowman sprite
-     40 U0096		       00 14	   SNOWMAN_H_X2 =	20	; Height for two snowmen for right animation
-     41 U0096		       00 0a	   ICICLE_H   =	10	; Height for icicle sprite
-     42 U0096		       00 05	   DIGITS_H   =	5	; Height for timer
-     43 U0096
-     44 U0096							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     45 U0096							;; Start the ROM at address $F000
-     46 U0096							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     47 U0096
-     48  10000 ????				       seg	Code
-     49  f000					      org	$F000
-     50  f000
-     51  f000				   Reset
+     23 U0086		       00	   SnowmanOffsetD byte.b		; Player 0 (snowman) offset for dead sprite
+     24 U0087		       00	   Random     byte.b		; random number for setting player 1 X pos
+     25 U0088		       00	   Score      byte.b		; stores the value for the score
+     26 U0089		       00	   HiScore    byte.b		; stores the value for the hi score
+     27 U008a		       00	   Temp       byte.b		; variable to store temporary time values
+     28 U008b		       00	   TimerSprite byte.b		; stores the current time sprite
+     29 U008c		       00	   HiScoreSprite byte.b		; stores the value for the hi score
+     30 U008d		       00 00	   OnesDigit  word.w		; stores offset of ones digit
+     31 U008f		       00 00	   TensDigit  word.w		; stores offset of tens digit
+     32 U0091		       00 00	   SnowmanColPtr word.w		; Player 0 (nowman) color pointer
+     33 U0093		       00 00	   SnowmanPtr word.w		; Player 0 (snowman) pointer
+     34 U0095		       00 00	   IcicleColPtr word.w		; player 1 (icicle) color pointer
+     35 U0097		       00 00	   IciclePtr  word.w		; Player 1 (icicle) pointer
+     36 U0099
+     37 U0099							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     38 U0099							;; Define Constants
+     39 U0099							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     40 U0099
+     41 U0099		       00 0a	   SNOWMAN_H  =	10	; Height for snowman sprite
+     42 U0099		       00 14	   SNOWMAN_H_X2 =	20	; Height for two snowmen for right animation
+     43 U0099		       00 1e	   SNOWMAN_H_X3 =	30	; Height for three snowmen for dead animation
+     44 U0099		       00 0a	   ICICLE_H   =	10	; Height for icicle sprite
+     45 U0099		       00 05	   DIGITS_H   =	5	; Height for timer
+     46 U0099
+     47 U0099							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     48 U0099							;; Start the ROM at address $F000
+     49 U0099							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     50 U0099
+     51  10000 ????				       seg	Code
+     52  f000					      org	$F000
+     53  f000
+     54  f000				   Reset
       0  f000					      CLEAN_START		; Calls macro to clear memory / registers
       1  f000		       78		      sei
       2  f001		       d8		      cld
@@ -429,768 +432,880 @@
       9  f008		       48		      pha
      10  f009		       d0 fb		      bne	.CLEAR_STACK
      11  f00b
-     53  f00b
-     54  f00b							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     55  f00b							;; Initialize RAM vars and TIA registers
-     56  f00b							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     57  f00b
-     58  f00b		       a9 01		      lda	#1
-     59  f00d		       85 81		      sta	SnowmanY	; SnowmanY = 1
-     60  f00f
-     61  f00f		       a9 28		      lda	#40
-     62  f011		       85 80		      sta	SnowmanX	; SnowmanX = 40
-     63  f013
-     64  f013		       a9 49		      lda	#73
-     65  f015		       85 83		      sta	IcicleY	; IcicleY = 73
-     66  f017
-     67  f017		       a9 32		      lda	#50
-     68  f019		       85 82		      sta	IcicleX	; IcicleX = 50
-     69  f01b
-     70  f01b		       a9 d4		      lda	#%11010100
-     71  f01d		       85 86		      sta	Random	; Sets Random seed
-     72  f01f
-     73  f01f		       a9 04		      lda	#4
-     74  f021		       85 87		      sta	Score
-     75  f023
-     76  f023
-     77  f023							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     78  f023							;; Initilize sprite and color pointers
-     79  f023							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-     80  f023
-     81  f023		       a9 be		      lda	#<SnowmanColor
-     82  f025		       85 8e		      sta	SnowmanColPtr	; Low-byte pointer for snowman color bitmap
-     83  f027		       a9 f2		      lda	#>SnowmanColor
-     84  f029		       85 8f		      sta	SnowmanColPtr+1	; High-byte pointer for snowman color bitmap
-     85  f02b
-     86  f02b		       a9 dc		      lda	#<IcicleColor
-     87  f02d		       85 92		      sta	IcicleColPtr	; Low-byte pointer for icicle color bitmap
-     88  f02f		       a9 f2		      lda	#>IcicleColor
-     89  f031		       85 93		      sta	IcicleColPtr+1	; High-byte pointer for icicle color bitmap
-     90  f033
-     91  f033		       a9 e6		      lda	#<Snowman
-     92  f035		       85 90		      sta	SnowmanPtr	; Low-byte pointer for snowman bitmap
-     93  f037		       a9 f2		      lda	#>Snowman
-     94  f039		       85 91		      sta	SnowmanPtr+1	; High-byte pointer for snowman bitmap
-     95  f03b
-     96  f03b		       a9 04		      lda	#<Icicle
-     97  f03d		       85 94		      sta	IciclePtr	; Low-byte pointer for icicle bitmap
-     98  f03f		       a9 f3		      lda	#>Icicle
-     99  f041		       85 95		      sta	IciclePtr+1	; High-byte pointer for icicle bitmap
-    100  f043
-    101  f043							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    102  f043							;; Start the main game display and render frames
-    103  f043							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    104  f043
-    105  f043				   StartFrame
-    106  f043
-    107  f043							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    108  f043							;; Display VSYNC and VBLANK
-    109  f043							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    110  f043
-    111  f043		       a9 02		      lda	#2	;
-    112  f045		       85 01		      sta	VBLANK	; turns on VBLANK
-    113  f047		       85 00		      sta	VSYNC	; turns on VSYNC
-    114  f049					      REPEAT	3
-    115  f049		       85 02		      sta	WSYNC	; display 3 lines of VSYNC
-    114  f049					      REPEND
-    115  f04b		       85 02		      sta	WSYNC	; display 3 lines of VSYNC
-    114  f04b					      REPEND
-    115  f04d		       85 02		      sta	WSYNC	; display 3 lines of VSYNC
-    116  f04f					      REPEND
-    117  f04f		       a9 00		      lda	#0
-    118  f051		       85 00		      sta	VSYNC	; turns off VSYNC
-    119  f053
-    120  f053					      REPEAT	33
-    121  f053		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f053					      REPEND
-    121  f055		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f055					      REPEND
-    121  f057		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f057					      REPEND
-    121  f059		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f059					      REPEND
-    121  f05b		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f05b					      REPEND
-    121  f05d		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f05d					      REPEND
-    121  f05f		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f05f					      REPEND
-    121  f061		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f061					      REPEND
-    121  f063		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f063					      REPEND
-    121  f065		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f065					      REPEND
-    121  f067		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f067					      REPEND
-    121  f069		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f069					      REPEND
-    121  f06b		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f06b					      REPEND
-    121  f06d		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f06d					      REPEND
-    121  f06f		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f06f					      REPEND
-    121  f071		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f071					      REPEND
-    121  f073		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f073					      REPEND
-    121  f075		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f075					      REPEND
-    121  f077		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f077					      REPEND
-    121  f079		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f079					      REPEND
-    121  f07b		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f07b					      REPEND
-    121  f07d		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f07d					      REPEND
-    121  f07f		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f07f					      REPEND
-    121  f081		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f081					      REPEND
-    121  f083		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f083					      REPEND
-    121  f085		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f085					      REPEND
-    121  f087		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f087					      REPEND
-    121  f089		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f089					      REPEND
-    121  f08b		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f08b					      REPEND
-    121  f08d		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f08d					      REPEND
-    121  f08f		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f08f					      REPEND
-    121  f091		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    120  f091					      REPEND
-    121  f093		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
-    122  f095					      REPEND
-    123  f095
-    124  f095							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    125  f095							;; Calculations performed in Pre-VBlank
-    126  f095							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    127  f095
-    128  f095		       a5 80		      lda	SnowmanX
-    129  f097		       a0 00		      ldy	#0
-    130  f099		       20 18 f2 	      jsr	SetObjectX	; set horizontal position for snowman and jump to subroutine
-    131  f09c
-    132  f09c		       a5 82		      lda	IcicleX
-    133  f09e		       a0 01		      ldy	#1
-    134  f0a0		       20 18 f2 	      jsr	SetObjectX	; set horizontal position for icicle and jump to subroutine
-    135  f0a3
-    136  f0a3		       20 4d f2 	      jsr	CalculateDigitOffset	; calculates the digit offset for lookup table
-    137  f0a6
-    138  f0a6		       85 02		      sta	WSYNC	; wait 1 scan line
-    139  f0a8		       85 2a		      sta	HMOVE	; apply the offsets set by subroutine
-    140  f0aa
-    141  f0aa		       a9 00		      lda	#0
-    142  f0ac		       85 01		      sta	VBLANK	; turns off VBLANK
-    143  f0ae
-    144  f0ae							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    145  f0ae							;; Render 192 visible scan lines
-    146  f0ae							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    147  f0ae
-    148  f0ae		       a9 00		      lda	#0
-    149  f0b0		       85 0d		      sta	PF0
-    150  f0b2		       85 0e		      sta	PF1
-    151  f0b4		       85 0f		      sta	PF2
-    152  f0b6		       85 1b		      sta	GRP0
-    153  f0b8		       85 1c		      sta	GRP1	; resets registers before displaying the score
-    154  f0ba		       85 0a		      sta	CTRLPF
-    155  f0bc		       a9 0e		      lda	#$0e
-    156  f0be		       85 09		      sta	COLUBK
-    157  f0c0		       a9 9c		      lda	#$9c
-    158  f0c2		       85 08		      sta	COLUPF
-    159  f0c4		       a2 05		      ldx	#DIGITS_H	; X = Digits height
-    160  f0c6
-    161  f0c6				   .ScoreDigitLoop
-    162  f0c6		       85 02		      sta	WSYNC	; wait for the end of scanline
-    163  f0c8		       a4 8c		      ldy	TensDigit	; get the left digit offset for the Timer
-    164  f0ca		       b9 6e f2 	      lda	Digits,Y	; load the digit pattern from lookup table
-    165  f0cd		       29 f0		      and	#%11110000	; mask the graphics for the ones digit
-    166  f0cf		       85 89		      sta	TimerSprite	; save the timer tens digit pattern in a variable
-    167  f0d1
-    168  f0d1		       a4 8a		      ldy	OnesDigit	; get the ones digit offset for the Timer
-    169  f0d3		       b9 6e f2 	      lda	Digits,Y	; load digit pattern from the lookup table
-    170  f0d6		       29 0f		      and	#%00001111	; mask the graphics for the tens digit
-    171  f0d8		       05 89		      ora	TimerSprite	; merge with the saved tens digit graphics
-    172  f0da		       85 89		      sta	TimerSprite	; and save it
-    173  f0dc
-    174  f0dc		       20 68 f2 	      jsr	Sleep12Cycles	; wastes some cycles
-    175  f0df
-    176  f0df		       85 0e		      sta	PF1	; update the playfield for Timer display
-    177  f0e1
-    178  f0e1		       85 02		      sta	WSYNC	; wait for next scanline
-    179  f0e3		       e6 8c		      inc	TensDigit
-    180  f0e5		       e6 8a		      inc	OnesDigit	; increment all digits for the next line of data
-    181  f0e7
-    182  f0e7		       20 68 f2 	      jsr	Sleep12Cycles	; waste some cycles
-    183  f0ea
-    184  f0ea		       ca		      dex		; X--
-    185  f0eb		       85 0e		      sta	PF1	; update the playfield for the Timer display
-    186  f0ed		       d0 d7		      bne	.ScoreDigitLoop	; if dex != 0, then branch to ScoreDigitLoop
-    187  f0ef
-    188  f0ef		       85 02		      sta	WSYNC
-    189  f0f1
-    190  f0f1		       a9 00		      lda	#0
-    191  f0f3		       85 0d		      sta	PF0
-    192  f0f5		       85 0e		      sta	PF1
-    193  f0f7		       85 0f		      sta	PF2
-    194  f0f9
-    195  f0f9		       85 02		      sta	WSYNC
-    196  f0fb		       85 02		      sta	WSYNC
-    197  f0fd		       85 02		      sta	WSYNC
-    198  f0ff
-    199  f0ff
-    200  f0ff				   VisibleLines
-    201  f0ff		       a9 9e		      lda	#$9e
-    202  f101		       85 08		      sta	COLUPF	; sets color of playfield to ice blue white
-    203  f103		       a9 01		      lda	#%00000001
-    204  f105		       85 0a		      sta	CTRLPF	; reflects playfield
-    205  f107		       a9 f0		      lda	#$F0
-    206  f109		       85 0d		      sta	PF0	; sets PF0 bit pattern
-    207  f10b		       a9 fc		      lda	#$FC
-    208  f10d		       85 0e		      sta	PF1	; sets PF1 bit pattern lda #0 sta PF2
-    209  f10f		       a9 ae		      lda	#$ae
-    210  f111		       85 09		      sta	COLUBK	; sets color to background light blue
-    211  f113
-    212  f113		       a2 55		      ldx	#85	; runs loop 79 times
-    213  f115				   .MainLineLoop
-    214  f115				   .InsideSnowman
-    215  f115		       8a		      txa		; transfer X to accumulator
-    216  f116		       38		      sec		; set carry
-    217  f117		       e5 81		      sbc	SnowmanY	; subtrack left body Y position from accumulator
-    218  f119		       c5 0a		      cmp	SNOWMAN_H	; inside sprite height bounds?
-    219  f11b		       90 02		      bcc	.DrawSnowman	; if inside bounds, draw snowman sprite
-    220  f11d		       a9 00		      lda	#0	; else set lookup to 0
+     56  f00b
+     57  f00b							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     58  f00b							;; Initialize RAM vars and TIA registers
+     59  f00b							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     60  f00b
+     61  f00b		       a9 01		      lda	#1
+     62  f00d		       85 81		      sta	SnowmanY	; SnowmanY = 1
+     63  f00f
+     64  f00f		       a9 28		      lda	#40
+     65  f011		       85 80		      sta	SnowmanX	; SnowmanX = 40
+     66  f013
+     67  f013		       a9 49		      lda	#73
+     68  f015		       85 83		      sta	IcicleY	; IcicleY = 73
+     69  f017
+     70  f017		       a9 32		      lda	#50
+     71  f019		       85 82		      sta	IcicleX	; IcicleX = 50
+     72  f01b
+     73  f01b		       a9 d4		      lda	#%11010100
+     74  f01d		       85 87		      sta	Random	; Sets Random seed
+     75  f01f
+     76  f01f		       a9 00		      lda	#0
+     77  f021		       85 88		      sta	Score
+     78  f023		       85 89		      sta	HiScore
+     79  f025
+     80  f025
+     81  f025							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     82  f025							;; Initilize sprite and color pointers
+     83  f025							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+     84  f025
+     85  f025		       a9 47		      lda	#<SnowmanColor
+     86  f027		       85 91		      sta	SnowmanColPtr	; Low-byte pointer for snowman color bitmap
+     87  f029		       a9 f3		      lda	#>SnowmanColor
+     88  f02b		       85 92		      sta	SnowmanColPtr+1	; High-byte pointer for snowman color bitmap
+     89  f02d
+     90  f02d		       a9 6f		      lda	#<IcicleColor
+     91  f02f		       85 95		      sta	IcicleColPtr	; Low-byte pointer for icicle color bitmap
+     92  f031		       a9 f3		      lda	#>IcicleColor
+     93  f033		       85 96		      sta	IcicleColPtr+1	; High-byte pointer for icicle color bitmap
+     94  f035
+     95  f035		       a9 79		      lda	#<Snowman
+     96  f037		       85 93		      sta	SnowmanPtr	; Low-byte pointer for snowman bitmap
+     97  f039		       a9 f3		      lda	#>Snowman
+     98  f03b		       85 94		      sta	SnowmanPtr+1	; High-byte pointer for snowman bitmap
+     99  f03d
+    100  f03d		       a9 a1		      lda	#<Icicle
+    101  f03f		       85 97		      sta	IciclePtr	; Low-byte pointer for icicle bitmap
+    102  f041		       a9 f3		      lda	#>Icicle
+    103  f043		       85 98		      sta	IciclePtr+1	; High-byte pointer for icicle bitmap
+    104  f045
+    105  f045							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    106  f045							;; Start the main game display and render frames
+    107  f045							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    108  f045
+    109  f045				   StartFrame
+    110  f045
+    111  f045							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    112  f045							;; Display VSYNC and VBLANK
+    113  f045							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    114  f045
+    115  f045		       a9 02		      lda	#2	;
+    116  f047		       85 01		      sta	VBLANK	; turns on VBLANK
+    117  f049		       85 00		      sta	VSYNC	; turns on VSYNC
+    118  f04b					      REPEAT	3
+    119  f04b		       85 02		      sta	WSYNC	; display 3 lines of VSYNC
+    118  f04b					      REPEND
+    119  f04d		       85 02		      sta	WSYNC	; display 3 lines of VSYNC
+    118  f04d					      REPEND
+    119  f04f		       85 02		      sta	WSYNC	; display 3 lines of VSYNC
+    120  f051					      REPEND
+    121  f051		       a9 00		      lda	#0
+    122  f053		       85 00		      sta	VSYNC	; turns off VSYNC
+    123  f055
+    124  f055					      REPEAT	33
+    125  f055		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f055					      REPEND
+    125  f057		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f057					      REPEND
+    125  f059		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f059					      REPEND
+    125  f05b		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f05b					      REPEND
+    125  f05d		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f05d					      REPEND
+    125  f05f		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f05f					      REPEND
+    125  f061		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f061					      REPEND
+    125  f063		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f063					      REPEND
+    125  f065		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f065					      REPEND
+    125  f067		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f067					      REPEND
+    125  f069		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f069					      REPEND
+    125  f06b		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f06b					      REPEND
+    125  f06d		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f06d					      REPEND
+    125  f06f		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f06f					      REPEND
+    125  f071		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f071					      REPEND
+    125  f073		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f073					      REPEND
+    125  f075		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f075					      REPEND
+    125  f077		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f077					      REPEND
+    125  f079		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f079					      REPEND
+    125  f07b		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f07b					      REPEND
+    125  f07d		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f07d					      REPEND
+    125  f07f		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f07f					      REPEND
+    125  f081		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f081					      REPEND
+    125  f083		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f083					      REPEND
+    125  f085		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f085					      REPEND
+    125  f087		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f087					      REPEND
+    125  f089		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f089					      REPEND
+    125  f08b		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f08b					      REPEND
+    125  f08d		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f08d					      REPEND
+    125  f08f		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f08f					      REPEND
+    125  f091		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f091					      REPEND
+    125  f093		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    124  f093					      REPEND
+    125  f095		       85 02		      sta	WSYNC	; display 33 lines of VBLANK
+    126  f097					      REPEND
+    127  f097
+    128  f097							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    129  f097							;; Calculations performed in Pre-VBlank
+    130  f097							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    131  f097
+    132  f097		       a5 80		      lda	SnowmanX
+    133  f099		       a0 00		      ldy	#0
+    134  f09b		       20 3d f2 	      jsr	SetObjectX	; set horizontal position for snowman and jump to subroutine
+    135  f09e
+    136  f09e		       a5 82		      lda	IcicleX
+    137  f0a0		       a0 01		      ldy	#1
+    138  f0a2		       20 3d f2 	      jsr	SetObjectX	; set horizontal position for icicle and jump to subroutine
+    139  f0a5
+    140  f0a5		       20 72 f2 	      jsr	CalculateDigitOffset	; calculates the digit offset for lookup table
+    141  f0a8
+    142  f0a8		       85 02		      sta	WSYNC	; wait 1 scan line
+    143  f0aa		       85 2a		      sta	HMOVE	; apply the offsets set by subroutine
+    144  f0ac
+    145  f0ac		       a9 00		      lda	#0
+    146  f0ae		       85 01		      sta	VBLANK	; turns off VBLANK
+    147  f0b0
+    148  f0b0							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    149  f0b0							;; Render 192 visible scan lines
+    150  f0b0							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    151  f0b0
+    152  f0b0		       a9 00		      lda	#0
+    153  f0b2		       85 0d		      sta	PF0
+    154  f0b4		       85 0e		      sta	PF1
+    155  f0b6		       85 0f		      sta	PF2
+    156  f0b8		       85 1b		      sta	GRP0
+    157  f0ba		       85 1c		      sta	GRP1	; resets registers before displaying the score
+    158  f0bc		       85 0a		      sta	CTRLPF
+    159  f0be		       a9 0e		      lda	#$0e
+    160  f0c0		       85 09		      sta	COLUBK
+    161  f0c2		       a9 9c		      lda	#$9c
+    162  f0c4		       85 08		      sta	COLUPF
+    163  f0c6		       a2 05		      ldx	#DIGITS_H	; X = Digits height
+    164  f0c8
+    165  f0c8				   .ScoreDigitLoop
+    166  f0c8		       a4 8f		      ldy	TensDigit	; get the tens digit offset for the Timer
+    167  f0ca		       b9 f7 f2 	      lda	Digits,Y	; load the bit pattern from lookup table
+    168  f0cd		       29 f0		      and	#$F0	; mask/remove the graphics for the ones digit
+    169  f0cf		       85 8b		      sta	TimerSprite	; save the score tens digit pattern in a variable
+    170  f0d1
+    171  f0d1		       a4 8d		      ldy	OnesDigit	; get the ones digit offset for the Timer
+    172  f0d3		       b9 f7 f2 	      lda	Digits,Y	; load the digit bit pattern from lookup table
+    173  f0d6		       29 0f		      and	#$0F	; mask/remove the graphics for the tens digit
+    174  f0d8		       05 8b		      ora	TimerSprite	; merge it with the saved tens digit sprite
+    175  f0da		       85 8b		      sta	TimerSprite	; and save it
+    176  f0dc		       85 02		      sta	WSYNC	; wait for the end of scanline
+    177  f0de		       85 0e		      sta	PF1	; update the playfield to display the Score sprite
+    178  f0e0
+    179  f0e0		       a4 90		      ldy	TensDigit+1	; get the left digit offset for the Hi Score
+    180  f0e2		       b9 f7 f2 	      lda	Digits,Y	; load the digit pattern from lookup table
+    181  f0e5		       29 f0		      and	#$F0	; mask/remove the graphics for the ones digit
+    182  f0e7		       85 8c		      sta	HiScoreSprite	; save the timer tens digit pattern in a variable
+    183  f0e9
+    184  f0e9		       a4 8e		      ldy	OnesDigit+1	; get the ones digit offset for the Hi Score
+    185  f0eb		       b9 f7 f2 	      lda	Digits,Y	; load digit pattern from the lookup table
+    186  f0ee		       29 0f		      and	#$0F	; mask/remove the graphics for the tens digit
+    187  f0f0		       05 8c		      ora	HiScoreSprite	; merge with the saved tens digit graphics
+    188  f0f2		       85 8c		      sta	HiScoreSprite	; and save it
+    189  f0f4
+    190  f0f4		       20 92 f2 	      jsr	Sleep12Cycles	; wastes some cycles
+    191  f0f7
+    192  f0f7		       85 0e		      sta	PF1	; update the playfield for Hi Score display
+    193  f0f9
+    194  f0f9		       a4 8b		      ldy	TimerSprite	; preload for the next scanline
+    195  f0fb		       85 02		      sta	WSYNC	; wait for next scanline
+    196  f0fd
+    197  f0fd		       84 0e		      sty	PF1	; update playfield for the score display
+    198  f0ff		       e6 8f		      inc	TensDigit
+    199  f101		       e6 90		      inc	TensDigit+1
+    200  f103		       e6 8d		      inc	OnesDigit
+    201  f105		       e6 8e		      inc	OnesDigit+1	; increment all digits for the next line of data
+    202  f107
+    203  f107		       20 92 f2 	      jsr	Sleep12Cycles	; waste some cycles
+    204  f10a
+    205  f10a		       ca		      dex		; X--
+    206  f10b		       85 0e		      sta	PF1	; update the playfield for the Score display
+    207  f10d		       d0 b9		      bne	.ScoreDigitLoop	; if dex != 0, then branch to ScoreDigitLoop
+    208  f10f
+    209  f10f
+    210  f10f		       85 02		      sta	WSYNC
+    211  f111
+    212  f111		       a9 00		      lda	#0
+    213  f113		       85 0d		      sta	PF0
+    214  f115		       85 0e		      sta	PF1
+    215  f117		       85 0f		      sta	PF2
+    216  f119
+    217  f119		       85 02		      sta	WSYNC
+    218  f11b		       85 02		      sta	WSYNC
+    219  f11d		       85 02		      sta	WSYNC
+    220  f11f
     221  f11f
-    222  f11f				   .DrawSnowman
-    223  f11f		       18		      clc		; clear carry flag
-    224  f120		       65 84		      adc	SnowmanOffsetL	; go to left sprite frame in memory
-    225  f122		       18		      clc		; clear carry flag
-    226  f123		       65 85		      adc	SnowmanOffsetR	; go to right sprite frame in memory
-    227  f125		       a8		      tay		; load Y
-    228  f126		       a9 05		      lda	#%00000101
-    229  f128		       85 04		      sta	NUSIZ0
-    230  f12a		       b1 90		      lda	(SnowmanPtr),Y	; load snowman from lookup table
-    231  f12c		       85 02		      sta	WSYNC	; wait for scan line
-    232  f12e		       85 1b		      sta	GRP0	; set graphics for player 0 (snowman)
-    233  f130		       b1 8e		      lda	(SnowmanColPtr),Y	; load snowman color from lookup table
-    234  f132		       85 06		      sta	COLUP0	; set color of player 0
-    235  f134
-    236  f134				   .InsideIcicle
-    237  f134		       8a		      txa		; transfer X to accumulator
-    238  f135		       38		      sec		; set carry
-    239  f136		       e5 83		      sbc	IcicleY	; subtrack left body Y position from accumulator
-    240  f138		       c5 0a		      cmp	ICICLE_H	; inside sprite height bounds?
-    241  f13a		       90 02		      bcc	.DrawIcicle	; if inside bounds, draw icicle sprite
-    242  f13c		       a9 00		      lda	#0	; else set lookup to 0
-    243  f13e
-    244  f13e				   .DrawIcicle
-    245  f13e		       a8		      tay		; load Y
-    246  f13f		       b1 94		      lda	(IciclePtr),Y	; load icicle from lookup table
-    247  f141		       85 02		      sta	WSYNC	; wait for scan line
-    248  f143		       85 1c		      sta	GRP1	; set graphics for player 1 (icicle)
-    249  f145		       b1 92		      lda	(IcicleColPtr),Y	; load icicle color from lookup table
-    250  f147		       85 07		      sta	COLUP1	; set color of player 1 (icicle)
-    251  f149
-    252  f149		       ca		      dex		; X--
-    253  f14a		       d0 c9		      bne	.MainLineLoop	; While (X != 0)
-    254  f14c
-    255  f14c		       a9 00		      lda	#0
-    256  f14e		       85 84		      sta	SnowmanOffsetL
-    257  f150		       85 85		      sta	SnowmanOffsetR	; reset left and right offsets
-    258  f152
-    259  f152
-    260  f152		       a9 0c		      lda	#$0c
-    261  f154		       85 09		      sta	COLUBK	; sets color to background snow grey
-    262  f156
-    263  f156					      REPEAT	1
-    264  f156		       85 02		      sta	WSYNC
-    265  f158		       85 02		      sta	WSYNC
-    266  f15a					      REPEND
-    267  f15a
-    268  f15a		       a9 0e		      lda	#$0e
-    269  f15c		       85 09		      sta	COLUBK	; sets color to background snow white
-    270  f15e
-    271  f15e					      REPEAT	6
-    272  f15e		       85 02		      sta	WSYNC
-    273  f160		       85 02		      sta	WSYNC
-    271  f160					      REPEND
-    272  f162		       85 02		      sta	WSYNC
-    273  f164		       85 02		      sta	WSYNC
-    271  f164					      REPEND
-    272  f166		       85 02		      sta	WSYNC
-    273  f168		       85 02		      sta	WSYNC
-    271  f168					      REPEND
-    272  f16a		       85 02		      sta	WSYNC
-    273  f16c		       85 02		      sta	WSYNC
-    271  f16c					      REPEND
-    272  f16e		       85 02		      sta	WSYNC
-    273  f170		       85 02		      sta	WSYNC
-    271  f170					      REPEND
-    272  f172		       85 02		      sta	WSYNC
-    273  f174		       85 02		      sta	WSYNC
-    274  f176					      REPEND
-    275  f176
-    276  f176							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    277  f176							;; Display Overscan of 30 lines
-    278  f176							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    279  f176
-    280  f176		       a9 02		      lda	#2
-    281  f178		       85 01		      sta	VBLANK	; turns on VBLANK
-    282  f17a					      REPEAT	30
-    283  f17a		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f17a					      REPEND
-    283  f17c		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f17c					      REPEND
-    283  f17e		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f17e					      REPEND
-    283  f180		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f180					      REPEND
-    283  f182		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f182					      REPEND
-    283  f184		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f184					      REPEND
-    283  f186		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f186					      REPEND
-    283  f188		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f188					      REPEND
-    283  f18a		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f18a					      REPEND
-    283  f18c		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f18c					      REPEND
-    283  f18e		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f18e					      REPEND
-    283  f190		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f190					      REPEND
-    283  f192		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f192					      REPEND
-    283  f194		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f194					      REPEND
-    283  f196		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f196					      REPEND
-    283  f198		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f198					      REPEND
-    283  f19a		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f19a					      REPEND
-    283  f19c		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f19c					      REPEND
-    283  f19e		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f19e					      REPEND
-    283  f1a0		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1a0					      REPEND
-    283  f1a2		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1a2					      REPEND
-    283  f1a4		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1a4					      REPEND
-    283  f1a6		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1a6					      REPEND
-    283  f1a8		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1a8					      REPEND
-    283  f1aa		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1aa					      REPEND
-    283  f1ac		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1ac					      REPEND
-    283  f1ae		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1ae					      REPEND
-    283  f1b0		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1b0					      REPEND
-    283  f1b2		       85 02		      sta	WSYNC	; display 30 overscan lines
-    282  f1b2					      REPEND
-    283  f1b4		       85 02		      sta	WSYNC	; display 30 overscan lines
-    284  f1b6					      REPEND
-    285  f1b6
-    286  f1b6		       a9 00		      lda	#0
-    287  f1b8		       85 01		      sta	VBLANK	; turns off VBLANK
-    288  f1ba
-    289  f1ba							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    290  f1ba							;; Joystick input for Player 0 (snowman)
-    291  f1ba							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    292  f1ba
-    293  f1ba				   CheckLeft
-    294  f1ba		       a9 40		      lda	#%01000000
-    295  f1bc		       2c 80 02 	      bit	SWCHA	; check for left joystick input
-    296  f1bf		       d0 16		      bne	CheckRight	; go to check right joystick input
-    297  f1c1		       a5 0a		      lda	SNOWMAN_H
-    298  f1c3		       85 84		      sta	SnowmanOffsetL	; adds height to go to left sprite frame
-    299  f1c5					      REPEAT	2
-    300  f1c5		       a5 80		      lda	SnowmanX
-    301  f1c7		       18		      clc		; clears carry
-    302  f1c8		       c9 1f		      cmp	#31	; compares Snowman X with value 31
-    303  f1ca		       30 0b		      bmi	CheckRight	; goes to check right if less that 31
-    304  f1cc		       c6 80		      dec	SnowmanX	; moves snowman left two pixels per frame
-    299  f1cc					      REPEND
-    300  f1ce		       a5 80		      lda	SnowmanX
-    301  f1d0		       18		      clc		; clears carry
-    302  f1d1		       c9 1f		      cmp	#31	; compares Snowman X with value 31
-    303  f1d3		       30 02		      bmi	CheckRight	; goes to check right if less that 31
-    304  f1d5		       c6 80		      dec	SnowmanX	; moves snowman left two pixels per frame
-    305  f1d7					      REPEND
-    306  f1d7
-    307  f1d7				   CheckRight
-    308  f1d7		       a9 80		      lda	#%10000000
-    309  f1d9		       2c 80 02 	      bit	SWCHA	; check for right joystick input
-    310  f1dc		       d0 16		      bne	EndJoystickTest	; ends test if not right either
-    311  f1de		       a5 14		      lda	SNOWMAN_H_X2
-    312  f1e0		       85 84		      sta	SnowmanOffsetL	; adds height x 2 to go to right sprite frame
-    313  f1e2					      REPEAT	2
-    314  f1e2		       a5 80		      lda	SnowmanX
-    315  f1e4		       18		      clc		; clears carry
-    316  f1e5		       c9 5e		      cmp	#94	; compares Snowman X with value 94
-    317  f1e7		       10 0b		      bpl	EndJoystickTest	; goes to ends test if value > 94
-    318  f1e9		       e6 80		      inc	SnowmanX	; moves snowman right two pixels per frame
-    313  f1e9					      REPEND
-    314  f1eb		       a5 80		      lda	SnowmanX
-    315  f1ed		       18		      clc		; clears carry
-    316  f1ee		       c9 5e		      cmp	#94	; compares Snowman X with value 94
-    317  f1f0		       10 02		      bpl	EndJoystickTest	; goes to ends test if value > 94
-    318  f1f2		       e6 80		      inc	SnowmanX	; moves snowman right two pixels per frame
-    319  f1f4					      REPEND
-    320  f1f4
-    321  f1f4				   EndJoystickTest		; if no joystick input is detected, do nothing
-    322  f1f4
-    323  f1f4							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    324  f1f4							;; Updates positions for next frame
-    325  f1f4							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    326  f1f4
-    327  f1f4				   UpdateIciclePos
-    328  f1f4		       a5 83		      lda	IcicleY
-    329  f1f6		       18		      clc		; clears carry
-    330  f1f7		       c9 02		      cmp	#2	; compares with value 2
-    331  f1f9		       30 09		      bmi	.ResetIciclePos	; if icicle is less than 2 (icicle hit floor) reset position
-    332  f1fb					      REPEAT	3
-    333  f1fb		       c6 83		      dec	IcicleY	; moves icicle down at speed of 3px per frame
-    332  f1fb					      REPEND
-    333  f1fd		       c6 83		      dec	IcicleY	; moves icicle down at speed of 3px per frame
-    332  f1fd					      REPEND
-    333  f1ff		       c6 83		      dec	IcicleY	; moves icicle down at speed of 3px per frame
-    334  f201					      REPEND
-    335  f201		       4c 07 f2 	      jmp	EndIciclePosUpdate
-    336  f204
-    337  f204				   .ResetIciclePos
-    338  f204		       20 2c f2 	      jsr	GetRandomIciclePos	; cals subrouting for random pos for icicle
-    339  f207
-    340  f207				   EndIciclePosUpdate		; does nothing if it does not reset
-    341  f207
-    342  f207							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    343  f207							;; Check for collision between player 0 (snowman) and player 1 (
-    344  f207							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    345  f207
-    346  f207				   CheckCollision
-    347  f207		       a9 80		      lda	#%10000000	; CXPPMM bit 7 (detects P0 and P1 colission)
-    348  f209		       24 07		      bit	CXPPMM	; check for collision
-    349  f20b		       d0 03		      bne	.Collision	; branches if collision occured
-    350  f20d		       4c 13 f2 	      jmp	EndCollisionCheck	; skip if no collision
-    351  f210
-    352  f210				   .Collision
-    353  f210		       20 69 f2 	      jsr	GameOver	; calls GameOver subroutine
-    354  f213
-    355  f213				   EndCollisionCheck		; fallback for no collision
-    356  f213		       85 2c		      sta	CXCLR	; clears collision flags
-    357  f215
-    358  f215							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    359  f215							;; Loop back to the Start
-    360  f215							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    361  f215
-    362  f215		       4c 43 f0 	      jmp	StartFrame	; continue to next frame
-    363  f218
-    364  f218							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    365  f218							;; Subroutine to handle horizontal positioning
-    366  f218							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    367  f218
-    368  f218				   SetObjectX subroutine
-    369  f218		       85 02		      sta	WSYNC	; start a fresh scanline
-    370  f21a		       38		      sec		; set carry flag
-    371  f21b				   .Div15Loop
-    372  f21b		       e9 0f		      sbc	#15	; subtract 15 from accumulator
-    373  f21d		       b0 fc		      bcs	.Div15Loop	; loop until flag is clear
-    374  f21f		       49 07		      eor	#%00000111	; XOR with 4 bits for (-8 to 7) offset
-    375  f221					      REPEAT	4
-    376  f221		       0a		      asl		; shift left 4 time to correct 4 bits
-    375  f221					      REPEND
-    376  f222		       0a		      asl		; shift left 4 time to correct 4 bits
-    375  f222					      REPEND
-    376  f223		       0a		      asl		; shift left 4 time to correct 4 bits
-    375  f223					      REPEND
-    376  f224		       0a		      asl		; shift left 4 time to correct 4 bits
-    377  f225					      REPEND
-    378  f225		       99 20 00 	      sta	HMP0,Y	; store the fine offset
-    379  f228		       99 10 00 	      sta	RESP0,Y	; fix object in 15-step increment
-    380  f22b		       60		      rts
-    381  f22c
-    382  f22c							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    383  f22c							;; Subroutine to get random X position for icicle
-    384  f22c							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    385  f22c
-    386  f22c				   GetRandomIciclePos subroutine
-    387  f22c		       a5 86		      lda	Random
-    388  f22e		       0a		      asl
-    389  f22f		       45 86		      eor	Random
-    390  f231		       0a		      asl
-    391  f232		       45 86		      eor	Random
-    392  f234		       0a		      asl
-    393  f235		       0a		      asl
-    394  f236		       45 86		      eor	Random
-    395  f238		       0a		      asl
-    396  f239		       26 86		      rol	Random	; Performs bit operations for random number
-    397  f23b
-    398  f23b		       4a		      lsr
-    399  f23c		       4a		      lsr		; divides value by 4
-    400  f23d		       85 82		      sta	IcicleX	; stores value in IcicleX
-    401  f23f		       a9 1e		      lda	#30
-    402  f241		       18		      clc		; clears the carry
-    403  f242		       65 82		      adc	IcicleX
-    404  f244		       85 82		      sta	IcicleX	; IcicleX += 30
-    405  f246		       a9 49		      lda	#73
-    406  f248		       85 83		      sta	IcicleY	; IcicleY = 73
-    407  f24a		       e6 87		      inc	Score	; Increments score
-    408  f24c		       60		      rts		; return
-    409  f24d
-    410  f24d							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    411  f24d							;; Subroutine to get time digit offsets
-    412  f24d							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    413  f24d
-    414  f24d				   CalculateDigitOffset subroutine
-    415  f24d		       a5 87		      lda	Score
-    416  f24f		       29 0f		      and	#%00001111	; masks first 4 bits
-    417  f251		       85 88		      sta	Temp	; save A in Temp
-    418  f253		       0a		      asl
-    419  f254		       0a		      asl		; shift left twice for n * 4
-    420  f255		       65 88		      adc	Temp	; adds original A for n * 5
-    421  f257		       85 8a		      sta	OnesDigit	; stores ones digit
-    422  f259
-    423  f259		       a5 87		      lda	Score
-    424  f25b		       29 f0		      and	#%11110000	; masks last 4 bits
-    425  f25d		       4a		      lsr
-    426  f25e		       4a		      lsr		; shift right twice for n / 4
-    427  f25f		       85 88		      sta	Temp	; save A in Temp
-    428  f261		       4a		      lsr
-    429  f262		       4a		      lsr		; shift right twice for n / 16
-    430  f263		       65 88		      adc	Temp	; adds value stored in temp for n / 16 + n / 4
-    431  f265		       85 8c		      sta	TensDigit	; stores tens digit
-    432  f267		       60		      rts		; return
-    433  f268
-    434  f268							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    435  f268							;; Subroutine to waste 12 cycles
-    436  f268							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    437  f268				   Sleep12Cycles subroutine
-    438  f268		       60		      rts
-    439  f269
-    440  f269							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    441  f269							;; Subroutine when game is over (collision occured)
-    442  f269							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    443  f269
-    444  f269				   GameOver   subroutine
-    445  f269
-    446  f269		       a9 00		      lda	#0
-    447  f26b		       85 87		      sta	Score	; score gets reset
-    448  f26d		       60		      rts		; return
-    449  f26e
-    450  f26e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    451  f26e							;; Lookup Table
-    452  f26e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    453  f26e
-    454  f26e				   Digits
-    455  f26e		       77		      .byte.b	%01110111	; ### ###
-    456  f26f		       55		      .byte.b	%01010101	; # # # #
-    457  f270		       55		      .byte.b	%01010101	; # # # #
-    458  f271		       55		      .byte.b	%01010101	; # # # #
-    459  f272		       77		      .byte.b	%01110111	; ### ###
-    460  f273
-    461  f273		       11		      .byte.b	%00010001	;   #	 #
-    462  f274		       11		      .byte.b	%00010001	;   #	 #
-    463  f275		       11		      .byte.b	%00010001	;   #	 #
-    464  f276		       11		      .byte.b	%00010001	;   #	 #
-    465  f277		       11		      .byte.b	%00010001	;   #	 #
-    466  f278
-    467  f278		       77		      .byte.b	%01110111	; ### ###
-    468  f279		       11		      .byte.b	%00010001	;   #	 #
-    469  f27a		       77		      .byte.b	%01110111	; ### ###
-    470  f27b		       44		      .byte.b	%01000100	; #   #
-    471  f27c		       77		      .byte.b	%01110111	; ### ###
-    472  f27d
-    473  f27d		       77		      .byte.b	%01110111	; ### ###
-    474  f27e		       11		      .byte.b	%00010001	;   #	 #
-    475  f27f		       33		      .byte.b	%00110011	;  ##	##
-    476  f280		       11		      .byte.b	%00010001	;   #	 #
-    477  f281		       77		      .byte.b	%01110111	; ### ###
-    478  f282
-    479  f282		       55		      .byte.b	%01010101	; # # # #
-    480  f283		       55		      .byte.b	%01010101	; # # # #
-    481  f284		       77		      .byte.b	%01110111	; ### ###
-    482  f285		       11		      .byte.b	%00010001	;   #	 #
-    483  f286		       11		      .byte.b	%00010001	;   #	 #
-    484  f287
-    485  f287		       77		      .byte.b	%01110111	; ### ###
-    486  f288		       44		      .byte.b	%01000100	; #   #
-    487  f289		       77		      .byte.b	%01110111	; ### ###
-    488  f28a		       11		      .byte.b	%00010001	;   #	 #
-    489  f28b		       77		      .byte.b	%01110111	; ### ###
-    490  f28c
-    491  f28c		       77		      .byte.b	%01110111	; ### ###
-    492  f28d		       44		      .byte.b	%01000100	; #   #
-    493  f28e		       77		      .byte.b	%01110111	; ### ###
-    494  f28f		       55		      .byte.b	%01010101	; # # # #
-    495  f290		       77		      .byte.b	%01110111	; ### ###
-    496  f291
-    497  f291		       77		      .byte.b	%01110111	; ### ###
-    498  f292		       11		      .byte.b	%00010001	;   #	 #
-    499  f293		       11		      .byte.b	%00010001	;   #	 #
-    500  f294		       11		      .byte.b	%00010001	;   #	 #
-    501  f295		       11		      .byte.b	%00010001	;   #	 #
-    502  f296
-    503  f296		       77		      .byte.b	%01110111	; ### ###
-    504  f297		       55		      .byte.b	%01010101	; # # # #
-    505  f298		       77		      .byte.b	%01110111	; ### ###
-    506  f299		       55		      .byte.b	%01010101	; # # # #
-    507  f29a		       77		      .byte.b	%01110111	; ### ###
-    508  f29b
-    509  f29b		       77		      .byte.b	%01110111	; ### ###
-    510  f29c		       55		      .byte.b	%01010101	; # # # #
-    511  f29d		       77		      .byte.b	%01110111	; ### ###
-    512  f29e		       11		      .byte.b	%00010001	;   #	 #
-    513  f29f		       77		      .byte.b	%01110111	; ### ###
-    514  f2a0
-    515  f2a0		       22		      .byte.b	%00100010	;  #	#
-    516  f2a1		       55		      .byte.b	%01010101	; # # # #
-    517  f2a2		       77		      .byte.b	%01110111	; ### ###
-    518  f2a3		       55		      .byte.b	%01010101	; # # # #
-    519  f2a4		       55		      .byte.b	%01010101	; # # # #
-    520  f2a5
-    521  f2a5		       77		      .byte.b	%01110111	; ### ###
-    522  f2a6		       55		      .byte.b	%01010101	; # # # #
-    523  f2a7		       66		      .byte.b	%01100110	; ##  ##
-    524  f2a8		       55		      .byte.b	%01010101	; # # # #
-    525  f2a9		       77		      .byte.b	%01110111	; ### ###
-    526  f2aa
-    527  f2aa		       77		      .byte.b	%01110111	; ### ###
-    528  f2ab		       44		      .byte.b	%01000100	; #   #
-    529  f2ac		       44		      .byte.b	%01000100	; #   #
-    530  f2ad		       44		      .byte.b	%01000100	; #   #
-    531  f2ae		       77		      .byte.b	%01110111	; ### ###
-    532  f2af
-    533  f2af		       66		      .byte.b	%01100110	; ##  ##
-    534  f2b0		       55		      .byte.b	%01010101	; # # # #
-    535  f2b1		       55		      .byte.b	%01010101	; # # # #
-    536  f2b2		       55		      .byte.b	%01010101	; # # # #
-    537  f2b3		       66		      .byte.b	%01100110	; ##  ##
-    538  f2b4
-    539  f2b4		       77		      .byte.b	%01110111	; ### ###
-    540  f2b5		       44		      .byte.b	%01000100	; #   #
-    541  f2b6		       77		      .byte.b	%01110111	; ### ###
-    542  f2b7		       44		      .byte.b	%01000100	; #   #
-    543  f2b8		       77		      .byte.b	%01110111	; ### ###
-    544  f2b9
-    545  f2b9		       77		      .byte.b	%01110111	; ### ###
-    546  f2ba		       44		      .byte.b	%01000100	; #   #
-    547  f2bb		       66		      .byte.b	%01100110	; ##  ##
-    548  f2bc		       44		      .byte.b	%01000100	; #   #
-    549  f2bd		       44		      .byte.b	%01000100	; #   #
-    550  f2be
-    551  f2be
-    552  f2be				   SnowmanColor 		; color for snowman
-    553  f2be		       00		      .byte.b	#$00
-    554  f2bf		       0e		      .byte.b	#$0e
-    555  f2c0		       0e		      .byte.b	#$0e
-    556  f2c1		       0e		      .byte.b	#$0e
-    557  f2c2		       0e		      .byte.b	#$0e
-    558  f2c3		       0e		      .byte.b	#$0e
-    559  f2c4		       0e		      .byte.b	#$0e
-    560  f2c5		       0e		      .byte.b	#$0e
-    561  f2c6		       0e		      .byte.b	#$0e
-    562  f2c7		       0e		      .byte.b	#$0e
-    563  f2c8
-    564  f2c8				   SnowmanColorLeft		; color for snowman when moving left
-    565  f2c8		       00		      .byte.b	#$00
-    566  f2c9		       0e		      .byte.b	#$0e
-    567  f2ca		       0e		      .byte.b	#$0e
-    568  f2cb		       0e		      .byte.b	#$0e
-    569  f2cc		       0e		      .byte.b	#$0e
-    570  f2cd		       0e		      .byte.b	#$0e
-    571  f2ce		       0e		      .byte.b	#$0e
-    572  f2cf		       0e		      .byte.b	#$0e
-    573  f2d0		       0e		      .byte.b	#$0e
-    574  f2d1		       0e		      .byte.b	#$0e
-    575  f2d2
-    576  f2d2				   SnowmanColor3		; color for snowman when moving right
-    577  f2d2		       00		      .byte.b	#$00
-    578  f2d3		       0e		      .byte.b	#$0e
-    579  f2d4		       0e		      .byte.b	#$0e
-    580  f2d5		       0e		      .byte.b	#$0e
-    581  f2d6		       0e		      .byte.b	#$0e
-    582  f2d7		       0e		      .byte.b	#$0e
-    583  f2d8		       0e		      .byte.b	#$0e
-    584  f2d9		       0e		      .byte.b	#$0e
-    585  f2da		       0e		      .byte.b	#$0e
-    586  f2db		       0e		      .byte.b	#$0e
-    587  f2dc
-    588  f2dc				   IcicleColor		; color for icicle
-    589  f2dc		       00		      .byte.b	#%00
-    590  f2dd		       9c		      .byte.b	#$9c
-    591  f2de		       9c		      .byte.b	#$9c
-    592  f2df		       9c		      .byte.b	#$9c
-    593  f2e0		       9c		      .byte.b	#$9c
-    594  f2e1		       9c		      .byte.b	#$9c
-    595  f2e2		       9c		      .byte.b	#$9c
-    596  f2e3		       9c		      .byte.b	#$9c
-    597  f2e4		       9c		      .byte.b	#$9c
-    598  f2e5		       9c		      .byte.b	#$9c
-    599  f2e6
-    600  f2e6				   Snowman
-    601  f2e6		       00		      .byte.b	#%00000000
-    602  f2e7		       ff		      .byte.b	#%11111111
-    603  f2e8		       f7		      .byte.b	#%11110111
-    604  f2e9		       ff		      .byte.b	#%11111111
-    605  f2ea		       76		      .byte.b	#%01110110
-    606  f2eb		       ff		      .byte.b	#%11111111
-    607  f2ec		       a5		      .byte.b	#%10100101
-    608  f2ed		       a5		      .byte.b	#%10100101
-    609  f2ee		       5a		      .byte.b	#%01011010
-    610  f2ef		       7e		      .byte.b	#%01111110
-    611  f2f0
-    612  f2f0				   SnowmanLeft
-    613  f2f0		       00		      .byte.b	#%00000000
-    614  f2f1		       3f		      .byte.b	#%00111111
-    615  f2f2		       3c		      .byte.b	#%00111100
-    616  f2f3		       3c		      .byte.b	#%00111100
-    617  f2f4		       3d		      .byte.b	#%00111101
-    618  f2f5		       ff		      .byte.b	#%11111111
-    619  f2f6		       bc		      .byte.b	#%10111100
-    620  f2f7		       3c		      .byte.b	#%00111100
-    621  f2f8		       2c		      .byte.b	#%00101100
-    622  f2f9		       3c		      .byte.b	#%00111100
-    623  f2fa
-    624  f2fa				   SnowmanRight
-    625  f2fa		       00		      .byte.b	#%00000000
-    626  f2fb		       fc		      .byte.b	#%11111100
-    627  f2fc		       3c		      .byte.b	#%00111100
-    628  f2fd		       3c		      .byte.b	#%00111100
-    629  f2fe		       bc		      .byte.b	#%10111100
-    630  f2ff		       ff		      .byte.b	#%11111111
-    631  f300		       3d		      .byte.b	#%00111101
-    632  f301		       3c		      .byte.b	#%00111100
-    633  f302		       34		      .byte.b	#%00110100
-    634  f303		       3c		      .byte.b	#%00111100
-    635  f304
-    636  f304				   Icicle		; outline of icicle
-    637  f304		       00		      .byte.b	#%00000000
-    638  f305		       08		      .byte.b	#%00001000
-    639  f306		       08		      .byte.b	#%00001000
-    640  f307		       18		      .byte.b	#%00011000
-    641  f308		       18		      .byte.b	#%00011000
-    642  f309		       18		      .byte.b	#%00011000
-    643  f30a		       1c		      .byte.b	#%00011100
-    644  f30b		       1c		      .byte.b	#%00011100
-    645  f30c		       1c		      .byte.b	#%00011100
-    646  f30d		       3c		      .byte.b	#%00111100
-    647  f30e
-    648  f30e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    649  f30e							;; Fill ROM with 4KB
-    650  f30e							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    651  f30e
-    652  fffc					      org	$FFFC	; moves to $FFFC
-    653  fffc		       00 f0		      word.w	Reset	; write 2 bytes with reset
-    654  fffe		       00 f0		      word.w	Reset	; write 2 bytes with interuption vector
+    222  f11f				   VisibleLines
+    223  f11f		       a9 9e		      lda	#$9e
+    224  f121		       85 08		      sta	COLUPF	; sets color of playfield to ice blue white
+    225  f123		       a9 01		      lda	#%00000001
+    226  f125		       85 0a		      sta	CTRLPF	; reflects playfield
+    227  f127		       a9 f0		      lda	#$F0
+    228  f129		       85 0d		      sta	PF0	; sets PF0 bit pattern
+    229  f12b		       a9 fc		      lda	#$FC
+    230  f12d		       85 0e		      sta	PF1	; sets PF1 bit pattern lda #0 sta PF2
+    231  f12f		       a9 ae		      lda	#$ae
+    232  f131		       85 09		      sta	COLUBK	; sets color to background light blue
+    233  f133
+    234  f133		       a2 55		      ldx	#85	; runs loop 79 times
+    235  f135				   .MainLineLoop
+    236  f135				   .InsideSnowman
+    237  f135		       8a		      txa		; transfer X to accumulator
+    238  f136		       38		      sec		; set carry
+    239  f137		       e5 81		      sbc	SnowmanY	; subtrack left body Y position from accumulator
+    240  f139		       c5 0a		      cmp	SNOWMAN_H	; inside sprite height bounds?
+    241  f13b		       90 02		      bcc	.DrawSnowman	; if inside bounds, draw snowman sprite
+    242  f13d		       a9 00		      lda	#0	; else set lookup to 0
+    243  f13f
+    244  f13f				   .DrawSnowman
+    245  f13f		       18		      clc		; clear carry flag
+    246  f140		       65 84		      adc	SnowmanOffsetL	; go to left sprite frame in memory
+    247  f142		       18		      clc		; clear carry flag
+    248  f143		       65 85		      adc	SnowmanOffsetR	; go to right sprite frame in memory
+    249  f145		       18		      clc		; clear carry flag
+    250  f146		       65 86		      adc	SnowmanOffsetD	; go to dead sprite frame in memory
+    251  f148		       a8		      tay		; load Y
+    252  f149		       a9 05		      lda	#%00000101
+    253  f14b		       85 04		      sta	NUSIZ0
+    254  f14d		       b1 93		      lda	(SnowmanPtr),Y	; load snowman from lookup table
+    255  f14f		       85 02		      sta	WSYNC	; wait for scan line
+    256  f151		       85 1b		      sta	GRP0	; set graphics for player 0 (snowman)
+    257  f153		       b1 91		      lda	(SnowmanColPtr),Y	; load snowman color from lookup table
+    258  f155		       85 06		      sta	COLUP0	; set color of player 0
+    259  f157
+    260  f157				   .InsideIcicle
+    261  f157		       8a		      txa		; transfer X to accumulator
+    262  f158		       38		      sec		; set carry
+    263  f159		       e5 83		      sbc	IcicleY	; subtrack left body Y position from accumulator
+    264  f15b		       c5 0a		      cmp	ICICLE_H	; inside sprite height bounds?
+    265  f15d		       90 02		      bcc	.DrawIcicle	; if inside bounds, draw icicle sprite
+    266  f15f		       a9 00		      lda	#0	; else set lookup to 0
+    267  f161
+    268  f161				   .DrawIcicle
+    269  f161		       a8		      tay		; load Y
+    270  f162		       b1 97		      lda	(IciclePtr),Y	; load icicle from lookup table
+    271  f164		       85 02		      sta	WSYNC	; wait for scan line
+    272  f166		       85 1c		      sta	GRP1	; set graphics for player 1 (icicle)
+    273  f168		       b1 95		      lda	(IcicleColPtr),Y	; load icicle color from lookup table
+    274  f16a		       85 07		      sta	COLUP1	; set color of player 1 (icicle)
+    275  f16c
+    276  f16c		       ca		      dex		; X--
+    277  f16d		       d0 c6		      bne	.MainLineLoop	; While (X != 0)
+    278  f16f
+    279  f16f		       a9 00		      lda	#0
+    280  f171		       85 84		      sta	SnowmanOffsetL
+    281  f173		       85 85		      sta	SnowmanOffsetR
+    282  f175		       85 86		      sta	SnowmanOffsetD	; reset all offsets each frame
+    283  f177
+    284  f177
+    285  f177		       a9 0c		      lda	#$0c
+    286  f179		       85 09		      sta	COLUBK	; sets color to background snow grey
+    287  f17b
+    288  f17b					      REPEAT	1
+    289  f17b		       85 02		      sta	WSYNC
+    290  f17d		       85 02		      sta	WSYNC
+    291  f17f					      REPEND
+    292  f17f
+    293  f17f		       a9 0e		      lda	#$0e
+    294  f181		       85 09		      sta	COLUBK	; sets color to background snow white
+    295  f183
+    296  f183					      REPEAT	6
+    297  f183		       85 02		      sta	WSYNC
+    298  f185		       85 02		      sta	WSYNC
+    296  f185					      REPEND
+    297  f187		       85 02		      sta	WSYNC
+    298  f189		       85 02		      sta	WSYNC
+    296  f189					      REPEND
+    297  f18b		       85 02		      sta	WSYNC
+    298  f18d		       85 02		      sta	WSYNC
+    296  f18d					      REPEND
+    297  f18f		       85 02		      sta	WSYNC
+    298  f191		       85 02		      sta	WSYNC
+    296  f191					      REPEND
+    297  f193		       85 02		      sta	WSYNC
+    298  f195		       85 02		      sta	WSYNC
+    296  f195					      REPEND
+    297  f197		       85 02		      sta	WSYNC
+    298  f199		       85 02		      sta	WSYNC
+    299  f19b					      REPEND
+    300  f19b
+    301  f19b							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    302  f19b							;; Display Overscan of 30 lines
+    303  f19b							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    304  f19b
+    305  f19b		       a9 02		      lda	#2
+    306  f19d		       85 01		      sta	VBLANK	; turns on VBLANK
+    307  f19f					      REPEAT	30
+    308  f19f		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f19f					      REPEND
+    308  f1a1		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1a1					      REPEND
+    308  f1a3		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1a3					      REPEND
+    308  f1a5		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1a5					      REPEND
+    308  f1a7		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1a7					      REPEND
+    308  f1a9		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1a9					      REPEND
+    308  f1ab		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1ab					      REPEND
+    308  f1ad		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1ad					      REPEND
+    308  f1af		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1af					      REPEND
+    308  f1b1		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1b1					      REPEND
+    308  f1b3		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1b3					      REPEND
+    308  f1b5		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1b5					      REPEND
+    308  f1b7		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1b7					      REPEND
+    308  f1b9		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1b9					      REPEND
+    308  f1bb		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1bb					      REPEND
+    308  f1bd		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1bd					      REPEND
+    308  f1bf		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1bf					      REPEND
+    308  f1c1		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1c1					      REPEND
+    308  f1c3		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1c3					      REPEND
+    308  f1c5		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1c5					      REPEND
+    308  f1c7		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1c7					      REPEND
+    308  f1c9		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1c9					      REPEND
+    308  f1cb		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1cb					      REPEND
+    308  f1cd		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1cd					      REPEND
+    308  f1cf		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1cf					      REPEND
+    308  f1d1		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1d1					      REPEND
+    308  f1d3		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1d3					      REPEND
+    308  f1d5		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1d5					      REPEND
+    308  f1d7		       85 02		      sta	WSYNC	; display 30 overscan lines
+    307  f1d7					      REPEND
+    308  f1d9		       85 02		      sta	WSYNC	; display 30 overscan lines
+    309  f1db					      REPEND
+    310  f1db
+    311  f1db		       a9 00		      lda	#0
+    312  f1dd		       85 01		      sta	VBLANK	; turns off VBLANK
+    313  f1df
+    314  f1df							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    315  f1df							;; Joystick input for Player 0 (snowman)
+    316  f1df							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    317  f1df
+    318  f1df				   CheckLeft
+    319  f1df		       a9 40		      lda	#%01000000
+    320  f1e1		       2c 80 02 	      bit	SWCHA	; check for left joystick input
+    321  f1e4		       d0 16		      bne	CheckRight	; go to check right joystick input
+    322  f1e6		       a5 0a		      lda	SNOWMAN_H
+    323  f1e8		       85 84		      sta	SnowmanOffsetL	; adds height to go to left sprite frame
+    324  f1ea					      REPEAT	2
+    325  f1ea		       a5 80		      lda	SnowmanX
+    326  f1ec		       18		      clc		; clears carry
+    327  f1ed		       c9 1f		      cmp	#31	; compares Snowman X with value 31
+    328  f1ef		       30 0b		      bmi	CheckRight	; goes to check right if less that 31
+    329  f1f1		       c6 80		      dec	SnowmanX	; moves snowman left two pixels per frame
+    324  f1f1					      REPEND
+    325  f1f3		       a5 80		      lda	SnowmanX
+    326  f1f5		       18		      clc		; clears carry
+    327  f1f6		       c9 1f		      cmp	#31	; compares Snowman X with value 31
+    328  f1f8		       30 02		      bmi	CheckRight	; goes to check right if less that 31
+    329  f1fa		       c6 80		      dec	SnowmanX	; moves snowman left two pixels per frame
+    330  f1fc					      REPEND
+    331  f1fc
+    332  f1fc				   CheckRight
+    333  f1fc		       a9 80		      lda	#%10000000
+    334  f1fe		       2c 80 02 	      bit	SWCHA	; check for right joystick input
+    335  f201		       d0 16		      bne	EndJoystickTest	; ends test if not right either
+    336  f203		       a5 14		      lda	SNOWMAN_H_X2
+    337  f205		       85 84		      sta	SnowmanOffsetL	; adds height x 2 to go to right sprite frame
+    338  f207					      REPEAT	2
+    339  f207		       a5 80		      lda	SnowmanX
+    340  f209		       18		      clc		; clears carry
+    341  f20a		       c9 5e		      cmp	#94	; compares Snowman X with value 94
+    342  f20c		       10 0b		      bpl	EndJoystickTest	; goes to ends test if value > 94
+    343  f20e		       e6 80		      inc	SnowmanX	; moves snowman right two pixels per frame
+    338  f20e					      REPEND
+    339  f210		       a5 80		      lda	SnowmanX
+    340  f212		       18		      clc		; clears carry
+    341  f213		       c9 5e		      cmp	#94	; compares Snowman X with value 94
+    342  f215		       10 02		      bpl	EndJoystickTest	; goes to ends test if value > 94
+    343  f217		       e6 80		      inc	SnowmanX	; moves snowman right two pixels per frame
+    344  f219					      REPEND
+    345  f219
+    346  f219				   EndJoystickTest		; if no joystick input is detected, do nothing
+    347  f219
+    348  f219							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    349  f219							;; Updates positions for next frame
+    350  f219							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    351  f219
+    352  f219				   UpdateIciclePos
+    353  f219		       a5 83		      lda	IcicleY
+    354  f21b		       18		      clc		; clears carry
+    355  f21c		       c9 02		      cmp	#2	; compares with value 2
+    356  f21e		       30 09		      bmi	.ResetIciclePos	; if icicle is less than 2 (icicle hit floor) reset position
+    357  f220					      REPEAT	3
+    358  f220		       c6 83		      dec	IcicleY	; moves icicle down at speed of 3px per frame
+    357  f220					      REPEND
+    358  f222		       c6 83		      dec	IcicleY	; moves icicle down at speed of 3px per frame
+    357  f222					      REPEND
+    358  f224		       c6 83		      dec	IcicleY	; moves icicle down at speed of 3px per frame
+    359  f226					      REPEND
+    360  f226		       4c 2c f2 	      jmp	EndIciclePosUpdate
+    361  f229
+    362  f229				   .ResetIciclePos
+    363  f229		       20 51 f2 	      jsr	GetRandomIciclePos	; cals subrouting for random pos for icicle
+    364  f22c
+    365  f22c				   EndIciclePosUpdate		; does nothing if it does not reset
+    366  f22c
+    367  f22c							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    368  f22c							;; Check for collision between player 0 (snowman) and player 1 (
+    369  f22c							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    370  f22c
+    371  f22c				   CheckCollision
+    372  f22c		       a9 80		      lda	#%10000000	; CXPPMM bit 7 (detects P0 and P1 colission)
+    373  f22e		       24 07		      bit	CXPPMM	; check for collision
+    374  f230		       d0 03		      bne	.Collision	; branches if collision occured
+    375  f232		       4c 38 f2 	      jmp	EndCollisionCheck	; skip if no collision
+    376  f235
+    377  f235				   .Collision
+    378  f235		       20 d8 f2 	      jsr	GameOver	; calls GameOver subroutine
+    379  f238
+    380  f238				   EndCollisionCheck		; fallback for no collision
+    381  f238		       85 2c		      sta	CXCLR	; clears collision flags
+    382  f23a
+    383  f23a							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    384  f23a							;; Loop back to the Start
+    385  f23a							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    386  f23a
+    387  f23a		       4c 45 f0 	      jmp	StartFrame	; continue to next frame
+    388  f23d
+    389  f23d							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    390  f23d							;; Subroutine to handle horizontal positioning
+    391  f23d							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    392  f23d
+    393  f23d				   SetObjectX subroutine
+    394  f23d		       85 02		      sta	WSYNC	; start a fresh scanline
+    395  f23f		       38		      sec		; set carry flag
+    396  f240				   .Div15Loop
+    397  f240		       e9 0f		      sbc	#15	; subtract 15 from accumulator
+    398  f242		       b0 fc		      bcs	.Div15Loop	; loop until flag is clear
+    399  f244		       49 07		      eor	#%00000111	; XOR with 4 bits for (-8 to 7) offset
+    400  f246					      REPEAT	4
+    401  f246		       0a		      asl		; shift left 4 time to correct 4 bits
+    400  f246					      REPEND
+    401  f247		       0a		      asl		; shift left 4 time to correct 4 bits
+    400  f247					      REPEND
+    401  f248		       0a		      asl		; shift left 4 time to correct 4 bits
+    400  f248					      REPEND
+    401  f249		       0a		      asl		; shift left 4 time to correct 4 bits
+    402  f24a					      REPEND
+    403  f24a		       99 20 00 	      sta	HMP0,Y	; store the fine offset
+    404  f24d		       99 10 00 	      sta	RESP0,Y	; fix object in 15-step increment
+    405  f250		       60		      rts
+    406  f251
+    407  f251							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    408  f251							;; Subroutine to get random X position for icicle
+    409  f251							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    410  f251
+    411  f251				   GetRandomIciclePos subroutine
+    412  f251		       a5 87		      lda	Random
+    413  f253		       0a		      asl
+    414  f254		       45 87		      eor	Random
+    415  f256		       0a		      asl
+    416  f257		       45 87		      eor	Random
+    417  f259		       0a		      asl
+    418  f25a		       0a		      asl
+    419  f25b		       45 87		      eor	Random
+    420  f25d		       0a		      asl
+    421  f25e		       26 87		      rol	Random	; Performs bit operations for random number
+    422  f260
+    423  f260		       4a		      lsr
+    424  f261		       4a		      lsr		; divides value by 4
+    425  f262		       85 82		      sta	IcicleX	; stores value in IcicleX
+    426  f264		       a9 1e		      lda	#30
+    427  f266		       18		      clc		; clears the carry
+    428  f267		       65 82		      adc	IcicleX
+    429  f269		       85 82		      sta	IcicleX	; IcicleX += 30
+    430  f26b		       a9 49		      lda	#73
+    431  f26d		       85 83		      sta	IcicleY	; IcicleY = 73
+    432  f26f		       e6 88		      inc	Score	; Increments score
+    433  f271		       60		      rts		; return
+    434  f272
+    435  f272							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    436  f272							;; Subroutine to get time digit offsets
+    437  f272							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    438  f272
+    439  f272				   CalculateDigitOffset subroutine
+    440  f272		       a2 01		      ldx	#1
+    441  f274				   .PrepareScoreLoop
+    442  f274		       b5 88		      lda	Score,X
+    443  f276		       29 0f		      and	#%00001111	; masks first 4 bits
+    444  f278		       85 8a		      sta	Temp	; save A in Temp
+    445  f27a		       0a		      asl
+    446  f27b		       0a		      asl		; shift left twice for n * 4
+    447  f27c		       65 8a		      adc	Temp	; adds original A for n * 5
+    448  f27e		       95 8d		      sta	OnesDigit,X	; stores ones digit
+    449  f280
+    450  f280		       b5 88		      lda	Score,X
+    451  f282		       29 f0		      and	#%11110000	; masks last 4 bits
+    452  f284		       4a		      lsr
+    453  f285		       4a		      lsr		; shift right twice for n / 4
+    454  f286		       85 8a		      sta	Temp	; save A in Temp
+    455  f288		       4a		      lsr
+    456  f289		       4a		      lsr		; shift right twice for n / 16
+    457  f28a		       65 8a		      adc	Temp	; adds value stored in temp for n / 16 + n / 4
+    458  f28c		       95 8f		      sta	TensDigit,X	; stores tens digit
+    459  f28e		       ca		      dex		; X--
+    460  f28f		       10 e3		      bpl	.PrepareScoreLoop	; while X >= 0
+    461  f291
+    462  f291		       60		      rts		; return
+    463  f292
+    464  f292							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    465  f292							;; Subroutine to waste 12 cycles
+    466  f292							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    467  f292				   Sleep12Cycles subroutine
+    468  f292		       60		      rts
+    469  f293
+    470  f293							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    471  f293							;; Subroutine for collision sound
+    472  f293							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    473  f293				   GenerateDeadSound subroutine
+    474  f293					      REPEAT	5
+    475  f293		       a9 0a		      lda	#10
+    476  f295		       85 19		      sta	AUDV0	; sets volume
+    477  f297		       a9 1f		      lda	#31
+    478  f299		       85 17		      sta	AUDF0	; sets frequency
+    479  f29b		       a9 08		      lda	#8
+    480  f29d		       85 15		      sta	AUDC0	; sets sound type
+    474  f29d					      REPEND
+    475  f29f		       a9 0a		      lda	#10
+    476  f2a1		       85 19		      sta	AUDV0	; sets volume
+    477  f2a3		       a9 1f		      lda	#31
+    478  f2a5		       85 17		      sta	AUDF0	; sets frequency
+    479  f2a7		       a9 08		      lda	#8
+    480  f2a9		       85 15		      sta	AUDC0	; sets sound type
+    474  f2a9					      REPEND
+    475  f2ab		       a9 0a		      lda	#10
+    476  f2ad		       85 19		      sta	AUDV0	; sets volume
+    477  f2af		       a9 1f		      lda	#31
+    478  f2b1		       85 17		      sta	AUDF0	; sets frequency
+    479  f2b3		       a9 08		      lda	#8
+    480  f2b5		       85 15		      sta	AUDC0	; sets sound type
+    474  f2b5					      REPEND
+    475  f2b7		       a9 0a		      lda	#10
+    476  f2b9		       85 19		      sta	AUDV0	; sets volume
+    477  f2bb		       a9 1f		      lda	#31
+    478  f2bd		       85 17		      sta	AUDF0	; sets frequency
+    479  f2bf		       a9 08		      lda	#8
+    480  f2c1		       85 15		      sta	AUDC0	; sets sound type
+    474  f2c1					      REPEND
+    475  f2c3		       a9 0a		      lda	#10
+    476  f2c5		       85 19		      sta	AUDV0	; sets volume
+    477  f2c7		       a9 1f		      lda	#31
+    478  f2c9		       85 17		      sta	AUDF0	; sets frequency
+    479  f2cb		       a9 08		      lda	#8
+    480  f2cd		       85 15		      sta	AUDC0	; sets sound type
+    481  f2cf					      REPEND
+    482  f2cf		       a9 00		      lda	#0
+    483  f2d1		       85 19		      sta	AUDV0
+    484  f2d3		       85 17		      sta	AUDF0
+    485  f2d5		       85 15		      sta	AUDC0	; resets sound
+    486  f2d7		       60		      rts		; return
+    487  f2d8
+    488  f2d8							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    489  f2d8							;; Subroutine when game is over (collision occured)
+    490  f2d8							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    491  f2d8
+    492  f2d8				   GameOver   subroutine
+    493  f2d8		       a9 00		      lda	#0
+    494  f2da		       85 84		      sta	SnowmanOffsetL
+    495  f2dc		       85 85		      sta	SnowmanOffsetR	; clears left and right snowman offset to prevent animation
+    496  f2de		       a5 1e		      lda	SNOWMAN_H_X3
+    497  f2e0		       85 86		      sta	SnowmanOffsetD	; adds height x 3 to go to dead sprite frame
+    498  f2e2		       20 93 f2 	      jsr	GenerateDeadSound	; adds dead sound
+    499  f2e5		       a5 88		      lda	Score
+    500  f2e7		       c5 89		      cmp	HiScore
+    501  f2e9		       10 03		      bpl	.SetHighScore	; sets high score if score is greater than highscore
+    502  f2eb		       4c f2 f2 	      jmp	ResetScore	; goes to reset score if hi score already set or greater
+    503  f2ee
+    504  f2ee				   .SetHighScore
+    505  f2ee		       a5 88		      lda	Score
+    506  f2f0		       85 89		      sta	HiScore	; stores the score in hi score
+    507  f2f2
+    508  f2f2				   ResetScore
+    509  f2f2		       a9 00		      lda	#0
+    510  f2f4		       85 88		      sta	Score	; score gets reset
+    511  f2f6		       60		      rts		; return
+    512  f2f7
+    513  f2f7							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    514  f2f7							;; Lookup Table
+    515  f2f7							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    516  f2f7
+    517  f2f7				   Digits
+    518  f2f7		       77		      .byte.b	%01110111	; ### ###
+    519  f2f8		       55		      .byte.b	%01010101	; # # # #
+    520  f2f9		       55		      .byte.b	%01010101	; # # # #
+    521  f2fa		       55		      .byte.b	%01010101	; # # # #
+    522  f2fb		       77		      .byte.b	%01110111	; ### ###
+    523  f2fc
+    524  f2fc		       11		      .byte.b	%00010001	;   #	 #
+    525  f2fd		       11		      .byte.b	%00010001	;   #	 #
+    526  f2fe		       11		      .byte.b	%00010001	;   #	 #
+    527  f2ff		       11		      .byte.b	%00010001	;   #	 #
+    528  f300		       11		      .byte.b	%00010001	;   #	 #
+    529  f301
+    530  f301		       77		      .byte.b	%01110111	; ### ###
+    531  f302		       11		      .byte.b	%00010001	;   #	 #
+    532  f303		       77		      .byte.b	%01110111	; ### ###
+    533  f304		       44		      .byte.b	%01000100	; #   #
+    534  f305		       77		      .byte.b	%01110111	; ### ###
+    535  f306
+    536  f306		       77		      .byte.b	%01110111	; ### ###
+    537  f307		       11		      .byte.b	%00010001	;   #	 #
+    538  f308		       33		      .byte.b	%00110011	;  ##	##
+    539  f309		       11		      .byte.b	%00010001	;   #	 #
+    540  f30a		       77		      .byte.b	%01110111	; ### ###
+    541  f30b
+    542  f30b		       55		      .byte.b	%01010101	; # # # #
+    543  f30c		       55		      .byte.b	%01010101	; # # # #
+    544  f30d		       77		      .byte.b	%01110111	; ### ###
+    545  f30e		       11		      .byte.b	%00010001	;   #	 #
+    546  f30f		       11		      .byte.b	%00010001	;   #	 #
+    547  f310
+    548  f310		       77		      .byte.b	%01110111	; ### ###
+    549  f311		       44		      .byte.b	%01000100	; #   #
+    550  f312		       77		      .byte.b	%01110111	; ### ###
+    551  f313		       11		      .byte.b	%00010001	;   #	 #
+    552  f314		       77		      .byte.b	%01110111	; ### ###
+    553  f315
+    554  f315		       77		      .byte.b	%01110111	; ### ###
+    555  f316		       44		      .byte.b	%01000100	; #   #
+    556  f317		       77		      .byte.b	%01110111	; ### ###
+    557  f318		       55		      .byte.b	%01010101	; # # # #
+    558  f319		       77		      .byte.b	%01110111	; ### ###
+    559  f31a
+    560  f31a		       77		      .byte.b	%01110111	; ### ###
+    561  f31b		       11		      .byte.b	%00010001	;   #	 #
+    562  f31c		       11		      .byte.b	%00010001	;   #	 #
+    563  f31d		       11		      .byte.b	%00010001	;   #	 #
+    564  f31e		       11		      .byte.b	%00010001	;   #	 #
+    565  f31f
+    566  f31f		       77		      .byte.b	%01110111	; ### ###
+    567  f320		       55		      .byte.b	%01010101	; # # # #
+    568  f321		       77		      .byte.b	%01110111	; ### ###
+    569  f322		       55		      .byte.b	%01010101	; # # # #
+    570  f323		       77		      .byte.b	%01110111	; ### ###
+    571  f324
+    572  f324		       77		      .byte.b	%01110111	; ### ###
+    573  f325		       55		      .byte.b	%01010101	; # # # #
+    574  f326		       77		      .byte.b	%01110111	; ### ###
+    575  f327		       11		      .byte.b	%00010001	;   #	 #
+    576  f328		       77		      .byte.b	%01110111	; ### ###
+    577  f329
+    578  f329		       22		      .byte.b	%00100010	;  #	#
+    579  f32a		       55		      .byte.b	%01010101	; # # # #
+    580  f32b		       77		      .byte.b	%01110111	; ### ###
+    581  f32c		       55		      .byte.b	%01010101	; # # # #
+    582  f32d		       55		      .byte.b	%01010101	; # # # #
+    583  f32e
+    584  f32e		       77		      .byte.b	%01110111	; ### ###
+    585  f32f		       55		      .byte.b	%01010101	; # # # #
+    586  f330		       66		      .byte.b	%01100110	; ##  ##
+    587  f331		       55		      .byte.b	%01010101	; # # # #
+    588  f332		       77		      .byte.b	%01110111	; ### ###
+    589  f333
+    590  f333		       77		      .byte.b	%01110111	; ### ###
+    591  f334		       44		      .byte.b	%01000100	; #   #
+    592  f335		       44		      .byte.b	%01000100	; #   #
+    593  f336		       44		      .byte.b	%01000100	; #   #
+    594  f337		       77		      .byte.b	%01110111	; ### ###
+    595  f338
+    596  f338		       66		      .byte.b	%01100110	; ##  ##
+    597  f339		       55		      .byte.b	%01010101	; # # # #
+    598  f33a		       55		      .byte.b	%01010101	; # # # #
+    599  f33b		       55		      .byte.b	%01010101	; # # # #
+    600  f33c		       66		      .byte.b	%01100110	; ##  ##
+    601  f33d
+    602  f33d		       77		      .byte.b	%01110111	; ### ###
+    603  f33e		       44		      .byte.b	%01000100	; #   #
+    604  f33f		       77		      .byte.b	%01110111	; ### ###
+    605  f340		       44		      .byte.b	%01000100	; #   #
+    606  f341		       77		      .byte.b	%01110111	; ### ###
+    607  f342
+    608  f342		       77		      .byte.b	%01110111	; ### ###
+    609  f343		       44		      .byte.b	%01000100	; #   #
+    610  f344		       66		      .byte.b	%01100110	; ##  ##
+    611  f345		       44		      .byte.b	%01000100	; #   #
+    612  f346		       44		      .byte.b	%01000100	; #   #
+    613  f347
+    614  f347
+    615  f347				   SnowmanColor 		; color for snowman
+    616  f347		       00		      .byte.b	#$00
+    617  f348		       0e		      .byte.b	#$0e
+    618  f349		       0e		      .byte.b	#$0e
+    619  f34a		       0e		      .byte.b	#$0e
+    620  f34b		       0e		      .byte.b	#$0e
+    621  f34c		       0e		      .byte.b	#$0e
+    622  f34d		       0e		      .byte.b	#$0e
+    623  f34e		       0e		      .byte.b	#$0e
+    624  f34f		       0e		      .byte.b	#$0e
+    625  f350		       0e		      .byte.b	#$0e
+    626  f351
+    627  f351				   SnowmanColorLeft		; color for snowman when moving left
+    628  f351		       00		      .byte.b	#$00
+    629  f352		       0e		      .byte.b	#$0e
+    630  f353		       0e		      .byte.b	#$0e
+    631  f354		       0e		      .byte.b	#$0e
+    632  f355		       0e		      .byte.b	#$0e
+    633  f356		       0e		      .byte.b	#$0e
+    634  f357		       0e		      .byte.b	#$0e
+    635  f358		       0e		      .byte.b	#$0e
+    636  f359		       0e		      .byte.b	#$0e
+    637  f35a		       0e		      .byte.b	#$0e
+    638  f35b
+    639  f35b				   SnowmanColorRight		;color for snowman when moving right
+    640  f35b		       00		      .byte.b	#$00
+    641  f35c		       0e		      .byte.b	#$0e
+    642  f35d		       0e		      .byte.b	#$0e
+    643  f35e		       0e		      .byte.b	#$0e
+    644  f35f		       0e		      .byte.b	#$0e
+    645  f360		       0e		      .byte.b	#$0e
+    646  f361		       0e		      .byte.b	#$0e
+    647  f362		       0e		      .byte.b	#$0e
+    648  f363		       0e		      .byte.b	#$0e
+    649  f364		       0e		      .byte.b	#$0e
+    650  f365
+    651  f365				   SnowmanColorDead		;color for snowman when dead
+    652  f365		       00		      .byte.b	#$00
+    653  f366		       0e		      .byte.b	#$0e
+    654  f367		       0e		      .byte.b	#$0e
+    655  f368		       0e		      .byte.b	#$0e
+    656  f369		       0e		      .byte.b	#$0e
+    657  f36a		       0e		      .byte.b	#$0e
+    658  f36b		       0e		      .byte.b	#$0e
+    659  f36c		       9c		      .byte.b	#$9c
+    660  f36d		       9c		      .byte.b	#$9c
+    661  f36e		       9c		      .byte.b	#$9c
+    662  f36f
+    663  f36f				   IcicleColor		; color for icicle
+    664  f36f		       00		      .byte.b	#%00
+    665  f370		       9c		      .byte.b	#$9c
+    666  f371		       9c		      .byte.b	#$9c
+    667  f372		       9c		      .byte.b	#$9c
+    668  f373		       9c		      .byte.b	#$9c
+    669  f374		       9c		      .byte.b	#$9c
+    670  f375		       9c		      .byte.b	#$9c
+    671  f376		       9c		      .byte.b	#$9c
+    672  f377		       9c		      .byte.b	#$9c
+    673  f378		       9c		      .byte.b	#$9c
+    674  f379
+    675  f379				   Snowman
+    676  f379		       00		      .byte.b	#%00000000
+    677  f37a		       ff		      .byte.b	#%11111111
+    678  f37b		       f7		      .byte.b	#%11110111
+    679  f37c		       ff		      .byte.b	#%11111111
+    680  f37d		       76		      .byte.b	#%01110110
+    681  f37e		       ff		      .byte.b	#%11111111
+    682  f37f		       a5		      .byte.b	#%10100101
+    683  f380		       a5		      .byte.b	#%10100101
+    684  f381		       5a		      .byte.b	#%01011010
+    685  f382		       7e		      .byte.b	#%01111110
+    686  f383
+    687  f383				   SnowmanLeft
+    688  f383		       00		      .byte.b	#%00000000
+    689  f384		       3f		      .byte.b	#%00111111
+    690  f385		       3c		      .byte.b	#%00111100
+    691  f386		       3c		      .byte.b	#%00111100
+    692  f387		       3d		      .byte.b	#%00111101
+    693  f388		       ff		      .byte.b	#%11111111
+    694  f389		       bc		      .byte.b	#%10111100
+    695  f38a		       3c		      .byte.b	#%00111100
+    696  f38b		       2c		      .byte.b	#%00101100
+    697  f38c		       3c		      .byte.b	#%00111100
+    698  f38d
+    699  f38d				   SnowmanRight
+    700  f38d		       00		      .byte.b	#%00000000
+    701  f38e		       fc		      .byte.b	#%11111100
+    702  f38f		       3c		      .byte.b	#%00111100
+    703  f390		       3c		      .byte.b	#%00111100
+    704  f391		       bc		      .byte.b	#%10111100
+    705  f392		       ff		      .byte.b	#%11111111
+    706  f393		       3d		      .byte.b	#%00111101
+    707  f394		       3c		      .byte.b	#%00111100
+    708  f395		       34		      .byte.b	#%00110100
+    709  f396		       3c		      .byte.b	#%00111100
+    710  f397
+    711  f397				   SnowmanDead
+    712  f397		       00		      .byte.b	#%00000000
+    713  f398		       ff		      .byte.b	#%11111111
+    714  f399		       ff		      .byte.b	#%11111111
+    715  f39a		       ff		      .byte.b	#%11111111
+    716  f39b		       7f		      .byte.b	#%01111111
+    717  f39c		       7e		      .byte.b	#%01111110
+    718  f39d		       7e		      .byte.b	#%01111110
+    719  f39e		       1c		      .byte.b	#%00011100
+    720  f39f		       1c		      .byte.b	#%00011100
+    721  f3a0		       3c		      .byte.b	#%00111100
+    722  f3a1
+    723  f3a1				   Icicle		; outline of icicle
+    724  f3a1		       00		      .byte.b	#%00000000
+    725  f3a2		       08		      .byte.b	#%00001000
+    726  f3a3		       08		      .byte.b	#%00001000
+    727  f3a4		       18		      .byte.b	#%00011000
+    728  f3a5		       18		      .byte.b	#%00011000
+    729  f3a6		       18		      .byte.b	#%00011000
+    730  f3a7		       1c		      .byte.b	#%00011100
+    731  f3a8		       1c		      .byte.b	#%00011100
+    732  f3a9		       1c		      .byte.b	#%00011100
+    733  f3aa		       3c		      .byte.b	#%00111100
+    734  f3ab
+    735  f3ab							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    736  f3ab							;; Fill ROM with 4KB
+    737  f3ab							;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    738  f3ab
+    739  fffc					      org	$FFFC	; moves to $FFFC
+    740  fffc		       00 f0		      word.w	Reset	; write 2 bytes with reset
+    741  fffe		       00 f0		      word.w	Reset	; write 2 bytes with interuption vector
